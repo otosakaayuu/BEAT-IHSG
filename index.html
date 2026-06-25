@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sovereign Wealth Alpha — Console IHSG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Chart.js replaced with inline canvas implementation -->
+<style>
+:root{
+  --ink:#0B0E11; --ink2:#12161c; --ink3:#1a1f26;
+  --paper:#ECE6D6; --paper2:#fbf9f1; --paper-dim:#8d8569; --line-paper:#cfc7ab;
+  --text:#E9E4D5; --text-dim:#9aa098;
+  --cuan:#46b08a; --boncos:#cf5b42; --emas:#cf9b46; --line:#262b27;
+  --maxw:1180px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:'Fraunces',serif;font-weight:600;margin:0;color:inherit;}
+p{margin:0 0 12px;}
+a{color:inherit;}
+em{font-style:italic;color:var(--emas);}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+@media (max-width:720px){.wrap{padding:0 18px;}}
+img,canvas{max-width:100%;}
+button{font-family:inherit;cursor:pointer;}
+input[type=range]{accent-color:var(--emas);}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+}
+
+/* ---------- ticker rail ---------- */
+.ticker{background:#000;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;height:32px;display:flex;align-items:center;}
+.ticker-track{display:inline-flex;animation:tickerScroll 42s linear infinite;}
+.ticker-track span{padding:0 20px;font-size:11px;letter-spacing:.03em;font-family:'IBM Plex Mono',monospace;color:var(--text-dim);flex-shrink:0;}
+.ticker-track span b{color:inherit;font-weight:600;}
+.up{color:var(--cuan)!important;}
+.down{color:var(--boncos)!important;}
+@keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.ticker-tag{font-size:10px;color:#555;letter-spacing:.08em;padding:0 16px;border-right:1px solid #2a2a2a;flex-shrink:0;display:flex;align-items:center;}
+
+/* ---------- nav ---------- */
+header.nav{position:sticky;top:0;z-index:50;background:var(--ink2);color:var(--text);border-bottom:1px solid var(--line);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:56px;gap:18px;}
+.brand{font-family:'Fraunces',serif;font-style:italic;font-weight:700;font-size:18px;white-space:nowrap;display:flex;align-items:center;gap:8px;}
+.brand b{font-style:normal;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.07em;background:var(--emas);color:var(--ink);padding:3px 6px;}
+.tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tabs a{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.05em;padding:8px 11px;white-space:nowrap;color:var(--text);opacity:.45;border-bottom:2px solid transparent;text-decoration:none;transition:opacity .15s;}
+.tabs a:hover{opacity:.85;}
+.tabs a.active{opacity:1;border-color:var(--emas);}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:74px 0 64px;border-bottom:1px solid var(--line);}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--emas);text-transform:uppercase;display:inline-flex;gap:9px;align-items:center;}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cuan);box-shadow:0 0 0 3px rgba(70,176,138,.25);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+h1.hero-title{font-size:clamp(32px,4.6vw,54px);line-height:1.08;margin:16px 0 18px;font-weight:600;}
+.hero-lead{color:var(--text-dim);max-width:540px;font-size:15.5px;}
+.ledger{margin-top:28px;border-top:1px solid var(--line);}
+.ledger-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px dashed var(--line);font-size:12.5px;color:var(--text-dim);}
+.ledger-row b{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--text);}
+.chart-box{border:1px solid var(--line);background:var(--ink2);padding:16px;}
+.chart-box canvas{width:100%;height:260px;display:block;}
+.chart-caption{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:10px;letter-spacing:.03em;display:flex;justify-content:space-between;}
+
+/* ---------- stamps ---------- */
+.stamp{display:inline-block;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11.5px;letter-spacing:.07em;padding:4px 10px;border:2px solid currentColor;transform:rotate(-5deg);text-transform:uppercase;}
+.stamp.beli{color:var(--cuan);}
+.stamp.skip,.stamp.awas,.stamp.hindari,.stamp.jual{color:var(--boncos);}
+.stamp.pantau,.stamp.tahan,.stamp.ancaman{color:var(--emas);}
+.stamp.peluang{color:var(--cuan);}
+.stamp-pop{opacity:0;}
+.stamp-pop.show{animation:stampIn .55s cubic-bezier(.2,1.7,.4,1) both;}
+@keyframes stampIn{from{opacity:0;transform:scale(1.7) rotate(-5deg);}to{opacity:1;transform:scale(1) rotate(-5deg);}}
+
+/* ---------- sections ---------- */
+section{padding:74px 0;}
+section.dark{background:var(--ink);}
+section.paper{background:var(--ink3);color:var(--text);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+section.paper .card{background:var(--ink2);border-color:var(--line);}
+section.paper .line-soft{border-color:var(--line);}
+section.paper .sec-intro{color:var(--text-dim);}
+.sec-head{display:flex;gap:18px;align-items:baseline;margin-bottom:34px;border-bottom:2px solid currentColor;padding-bottom:14px;flex-wrap:wrap;}
+.sec-head .num{font-family:'Fraunces',serif;font-size:40px;font-style:italic;opacity:.28;line-height:1;}
+.sec-head h2{font-size:25px;}
+.sec-head .freq{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;opacity:.55;letter-spacing:.04em;}
+.sec-intro{max-width:680px;color:var(--text-dim);font-size:14.5px;margin-bottom:34px;}
+
+.reveal-up{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease;}
+.reveal-up.visible{opacity:1;transform:none;}
+
+/* ---------- cards ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media (max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+.card{border:1px solid var(--line);padding:22px;position:relative;background:var(--ink2);}
+.card-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;opacity:.55;display:flex;justify-content:space-between;margin-bottom:10px;text-transform:uppercase;}
+.card h3{font-size:19px;margin-bottom:9px;}
+.card p{font-size:13.7px;opacity:.85;}
+.card .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;border:1px solid currentColor;padding:2px 6px;opacity:.7;}
+.card-link{display:inline-block;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--emas);text-decoration:none;border-bottom:1px dashed var(--emas);transition:opacity .15s;}
+.card-link:hover{opacity:.7;}
+
+/* bar viz */
+.barviz{display:flex;align-items:flex-end;gap:4px;height:48px;margin-top:16px;}
+.barviz i{flex:1;background:var(--cuan);opacity:.85;transform-origin:bottom;animation:barpulse 1.7s ease-in-out infinite;}
+.barviz i:nth-child(1){animation-delay:0s;} .barviz i:nth-child(2){animation-delay:.12s;}
+.barviz i:nth-child(3){animation-delay:.24s;} .barviz i:nth-child(4){animation-delay:.36s;}
+.barviz i:nth-child(5){animation-delay:.48s;} .barviz i:nth-child(6){animation-delay:.6s;}
+.barviz i:nth-child(7){animation-delay:.72s;} .barviz i:nth-child(8){animation-delay:.84s;}
+.barviz i:nth-child(9){animation-delay:.96s;} .barviz i:nth-child(10){animation-delay:1.08s;}
+@keyframes barpulse{0%,100%{transform:scaleY(.25);}50%{transform:scaleY(1);}}
+
+.obwall{height:13px;background:var(--line);position:relative;overflow:hidden;margin-top:16px;}
+.obwall i{position:absolute;inset:0;background:var(--cuan);width:0;animation:wallloop 4s ease-in-out infinite;}
+@keyframes wallloop{0%{width:0;}30%{width:88%;}80%{width:88%;}100%{width:0;}}
+
+.drainspike{height:13px;background:var(--line);position:relative;overflow:hidden;margin-top:16px;}
+.drainspike .r{position:absolute;left:0;top:0;bottom:0;background:var(--boncos);animation:redloop 4.2s ease-in-out infinite;}
+.drainspike .g{position:absolute;left:0;top:0;bottom:0;background:var(--cuan);animation:greenloop 4.2s ease-in-out infinite;}
+@keyframes redloop{0%{width:90%;}35%{width:18%;}70%{width:18%;}100%{width:90%;}}
+@keyframes greenloop{0%{width:0;}35%{width:0;}55%{width:72%;}82%{width:72%;}100%{width:0;}}
+
+.flatdot{height:13px;background:var(--line);position:relative;overflow:hidden;margin-top:16px;}
+.flatdot .floor{position:absolute;left:0;right:0;bottom:2px;height:2px;background:var(--boncos);opacity:.6;}
+.flatdot .spike{position:absolute;width:3px;background:var(--emas);bottom:2px;animation:negospike 3.6s ease-in-out infinite;}
+.flatdot .spike.a{left:22%;animation-delay:0s;} .flatdot .spike.b{left:48%;animation-delay:.6s;} .flatdot .spike.c{left:74%;animation-delay:1.2s;}
+@keyframes negospike{0%,100%{height:2px;opacity:.3;}45%{height:11px;opacity:1;}60%{height:2px;opacity:.3;}}
+
+/* stepper */
+.stepper{display:flex;align-items:flex-start;margin-top:18px;position:relative;}
+.stepper .rail{position:absolute;top:6px;left:0;right:0;height:2px;background:var(--line);z-index:0;}
+.stepper .pt{flex:1;text-align:center;position:relative;z-index:1;}
+.stepper .pt .dot{width:13px;height:13px;border-radius:50%;background:var(--ink2);border:2px solid var(--line);margin:0 auto 8px;transition:.3s;}
+.stepper .pt.active .dot{background:var(--emas);border-color:var(--emas);box-shadow:0 0 0 4px rgba(207,155,70,.22);}
+.stepper .pt span{font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:.65;display:block;}
+.stepper .pt b{display:block;font-size:11.5px;margin-top:2px;font-weight:600;}
+
+/* dividend timeline */
+.dtl{position:relative;margin-top:20px;padding-top:18px;}
+.dtl .track{height:2px;background:var(--line);position:relative;}
+.dtl .marker{position:absolute;top:-7px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--emas);animation:moveAlong 7s steps(3,jump-none) infinite;}
+@keyframes moveAlong{from{left:0%;}to{left:calc(100% - 7px);}}
+.dtl .labels{display:flex;justify-content:space-between;margin-top:10px;}
+.dtl .labels span{font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.65;max-width:80px;}
+
+/* vpa matrix */
+.vpa-wrap{position:relative;padding:30px 56px 30px 96px;}
+.vpa-axis-y{position:absolute;left:0;top:30px;bottom:30px;width:70px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:14px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:.6;text-align:right;border-right:1px dashed var(--line);}
+.vpa-axis-x{position:absolute;left:96px;right:56px;bottom:0;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:.6;padding-top:8px;border-top:1px dashed var(--line);}
+.vpa-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;border:2px solid var(--line);min-height:300px;}
+.vpa-cell{padding:18px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;border:1px solid transparent;transition:background .2s,border-color .2s;background:var(--ink2);}
+.vpa-cell:hover{background:rgba(207,155,70,.06);border-color:rgba(207,155,70,.3);}
+.vpa-cell.active{border-color:var(--emas);background:rgba(207,155,70,.08);}
+.vpa-cell h4{font-size:15px;margin-bottom:6px;}
+.vpa-cell span.eq{font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:.6;display:block;margin-bottom:6px;}
+.vpa-detail{margin-top:24px;border:1px solid var(--emas);background:rgba(207,155,70,.06);padding:20px 22px;display:none;}
+.vpa-detail.show{display:block;}
+.vpa-detail h4{font-size:16px;margin-bottom:8px;}
+.vpa-detail p{font-size:13.7px;opacity:.9;margin-bottom:0;}
+
+/* traps */
+.trap{border:1px solid var(--line);padding:18px 20px;cursor:pointer;transition:border-color .2s,background .2s;}
+.trap:hover{border-color:var(--emas);background:rgba(207,155,70,.04);}
+.trap-head{display:flex;justify-content:space-between;align-items:center;gap:14px;}
+.trap-head h4{font-size:15.5px;}
+.trap-num{font-family:'IBM Plex Mono',monospace;font-size:11px;opacity:.5;}
+.trap .lead{font-size:13.3px;opacity:.85;margin-top:8px;margin-bottom:0;}
+.trap .reveal{max-height:0;overflow:hidden;opacity:0;transition:max-height .35s ease,opacity .3s ease,margin .35s ease;border-top:1px dashed var(--line);margin-top:0;}
+.trap.open .reveal{max-height:300px;opacity:1;margin-top:13px;padding-top:13px;}
+.trap .toggle{font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:.55;margin-top:10px;display:inline-block;}
+.trap .reveal b{color:var(--cuan);}
+
+/* accordion calculators */
+.acc{border:1px solid var(--line);border-bottom:none;}
+.acc-item{border-bottom:1px solid var(--line);}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;cursor:pointer;transition:background .2s;}
+.acc-head:hover{background:rgba(207,155,70,.05);}
+.acc-head .t{display:flex;align-items:center;gap:12px;}
+.acc-head .t span.n{font-family:'IBM Plex Mono',monospace;font-size:11px;opacity:.5;}
+.acc-head h3{font-size:16.5px;}
+.acc-head .plus{font-family:'IBM Plex Mono',monospace;font-size:18px;opacity:.6;transition:transform .25s;}
+.acc-item.open .plus{transform:rotate(45deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.acc-item.open .acc-body{max-height:1200px;}
+.acc-inner{padding:0 20px 24px;}
+.acc-note{font-size:12.8px;opacity:.7;margin-bottom:16px;}
+.field{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap;}
+.field label{font-size:13px;opacity:.8;flex:1;min-width:180px;}
+.field input,.field select{background:transparent;border:1px solid var(--line);color:inherit;font-family:'IBM Plex Mono',monospace;padding:7px 10px;width:150px;text-align:right;font-size:13px;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--emas);}
+.rounds-box{margin-top:6px;}
+.scenario-toggle{display:flex;gap:10px;margin:14px 0;}
+.scenario-toggle label{flex:1;border:1px solid var(--line);padding:10px 12px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.scenario-toggle input{width:auto;}
+.scenario-toggle label.active{border-color:var(--emas);background:rgba(207,155,70,.07);}
+.result-box{margin-top:18px;padding:18px;background:rgba(207,155,70,.07);border:1px solid var(--emas);}
+.result-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:13.5px;padding:5px 0;}
+.result-row b{font-size:17px;}
+.result-row.muted{opacity:.65;font-size:12px;}
+.result-verdict{margin-top:12px;font-size:12.8px;}
+
+/* glossary */
+.glos-search{position:relative;margin-bottom:0;}
+.glos-search input{width:100%;padding:14px 16px;background:var(--ink2);border:2px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:var(--text);}
+.glos-search input::placeholder{color:var(--text-dim);opacity:.6;}
+.glos-search input:focus{outline:none;border-color:var(--emas);}
+.glos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:1px;border:1px solid var(--line);}
+@media (max-width:860px){.glos-grid{grid-template-columns:1fr 1fr;}}
+@media (max-width:560px){.glos-grid{grid-template-columns:1fr;}}
+.glos-item{background:var(--ink2);padding:16px;transition:background .15s;}
+.glos-item:hover{background:var(--ink3);}
+.glos-item dt{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;margin-bottom:4px;color:var(--emas);}
+.glos-item dd{font-size:12.6px;color:var(--text-dim);margin:0;line-height:1.5;}
+.glos-empty{padding:24px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);background:var(--ink2);}
+
+/* ipo checklist table */
+.ipo-table{width:100%;border-collapse:collapse;font-size:13px;}
+.ipo-table th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.05em;opacity:.55;padding:10px 12px;border-bottom:2px solid var(--line);text-transform:uppercase;}
+.ipo-table td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+.ipo-table tr:last-child td{border-bottom:none;}
+.ipo-table .metric{font-weight:600;width:22%;}
+.ipo-table .cond{opacity:.85;width:38%;}
+
+footer{padding:46px 0 64px;font-size:12px;color:var(--text-dim);}
+footer .rule{border-top:1px solid var(--line);margin-bottom:24px;}
+footer .credit{font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:.5;margin-top:18px;}
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand">Sovereign Wealth <b>ALPHA/IHSG</b></div>
+    <nav class="tabs" id="tabs">
+      <a href="#ringkasan" data-sec="ringkasan">00 RINGKASAN</a>
+      <a href="#taktis" data-sec="taktis">01 TAKTIS</a>
+      <a href="#event" data-sec="event">02 EVENT</a>
+      <a href="#akumulasi" data-sec="akumulasi">03 AKUMULASI</a>
+      <a href="#arbitrase" data-sec="arbitrase">04 ARBITRASE</a>
+      <a href="#vpa" data-sec="vpa">05 VPA</a>
+      <a href="#manipulasi" data-sec="manipulasi">06 MANIPULASI</a>
+      <a href="#kalkulator" data-sec="kalkulator">07 KALKULATOR</a>
+      <a href="#glosarium" data-sec="glosarium">08 GLOSARIUM</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero dark">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Buku Saku Trader · Order Flow IHSG</span>
+      <h1 class="hero-title">Pasar tidak bergerak sendiri.<br><em>Seseorang</em> menggerakkannya.</h1>
+      <p class="hero-lead">Console pribadi untuk membaca jejak akumulasi, distribusi, dan manipulasi di papan IHSG — disusun dari delapan modul strategi, satu matriks volume, dan lima kalkulator siap pakai. Bukan ramalan harga, melainkan cara membaca siapa yang sedang memegang suplai.</p>
+      <div class="ledger">
+        <div class="ledger-row"><span>Modul strategi tersusun</span><b>08</b></div>
+        <div class="ledger-row"><span>Fee bolak-balik standar (beli 0,15% + jual 0,25%)</span><b>0,40%</b></div>
+        <div class="ledger-row"><span>Batas aman posisi terhadap ADTV harian</span><b>5–10%</b></div>
+      </div>
+    </div>
+    <div>
+      <div class="chart-box">
+        <canvas id="heroChart" width="560" height="280"></canvas>
+        <div class="chart-caption"><span>Pola order flow · ilustrasi forensik</span><span>bukan data live</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 00 RINGKASAN ================= -->
+<section class="dark" id="ringkasan">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">00</span><h2>Ringkasan &amp; Filosofi</h2><span class="freq">peta modul</span></div>
+    <p class="sec-intro reveal-up">Di papan dengan free float tipis dan kepemilikan terkonsentrasi seperti IHSG, valuasi rasio bukan penggerak utama harga — <em>siapa memegang suplai</em> yang menggerakkannya. Filosofi kerja console ini: ikuti jejak akumulasi institusi, eksploitasi struktur (ARA/ARB/Rights Issue/IPO), dan jaga modal dari sembilan pola manipulasi paling umum.</p>
+    <div class="grid2">
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Peta Modul</span><span>frekuensi vs potensi margin</span></div>
+        <canvas id="bubbleChart" height="230"></canvas>
+        <p style="margin-top:10px;font-size:11.5px;opacity:.6;">Posisi relatif berdasarkan pengamatan struktural — bukan hasil backtest statistik.</p>
+      </div>
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Alokasi Modal Disarankan</span><span>taktis vs struktural</span></div>
+        <div id="allocBar" style="margin-top:10px;">
+          <div style="display:flex;height:46px;border:1px solid var(--line);overflow:hidden;">
+            <div id="allocTaktis" style="width:0%;background:var(--cuan);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#06281c;transition:width 1.4s ease;">25%</div>
+            <div id="allocStruk" style="width:0%;background:var(--emas);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#2b1c04;transition:width 1.4s ease .15s;">75%</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;">
+            <span><b style="color:var(--cuan);">■</b> Taktis — Tier 01–02, rotasi harian/bulanan</span>
+            <span><b style="color:var(--emas);">■</b> Struktural — Tier 03–04, siklus kuartalan</span>
+          </div>
+        </div>
+        <p style="margin-top:16px;font-size:13px;opacity:.8;">Modal taktis menutup biaya transaksi lewat frekuensi; modal struktural menunggu agenda korporasi pengendali matang sebelum dicairkan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 01 TAKTIS ================= -->
+<section class="paper" id="taktis">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">01</span><h2>Taktis — Eksekusi Harian/Mingguan</h2><span class="freq">frekuensi: tinggi · target net &gt;5% per transaksi</span></div>
+    <p class="sec-intro reveal-up">Tier tercepat. Mengandalkan anomali volume real-time. Target keuntungan wajib di atas hurdle rate 5% agar tidak tergerus fee bolak-balik 0,40% dan slippage.</p>
+    <div class="grid3">
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 1.A</span><span class="tag">harian</span></div>
+        <h3>Momentum Breakout</h3>
+        <p><b>Pemicu:</b> volume harian &gt;300% rata-rata 20 hari (MA20) bersamaan harga menembus level resisten.</p>
+        <p><b>Eksekusi:</b> masuk saat ledakan volume terjadi; keluar begitu volume mulai mengecil walau harga masih hijau — itu tanda kelelahan, bukan kekuatan.</p>
+        <div class="barviz"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 1.B</span><span class="tag">ARA</span></div>
+        <h3>Penguncian ARA</h3>
+        <p><b>Pemicu:</b> saham mengunci batas atas (ARA) dalam 30 menit pertama, antrean beli tebal &gt;15% volume rata-rata, tidak tercabut sampai tutup.</p>
+        <p><b>Eksekusi:</b> tahan posisi. Probabilitas tinggi pasar dibuka loncat naik (gap-up) keesokan harinya — jual saat lonjakan pembukaan itu terjadi.</p>
+        <div class="obwall"><i></i></div>
+      </div>
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 1.C</span><span class="tag">ARB</span></div>
+        <h3>Capitulation Sweep</h3>
+        <p><b>Pemicu:</b> saham terkunci ARB 3–4 hari berturut, lalu di salah satu hari volume tiba-tiba meledak walau harga tetap di dasar.</p>
+        <p><b>Eksekusi:</b> itu institusi menadah kepanikan ritel. Jangan beli di hari pertama ARB — masuk justru saat ledakan volume di harga ARB tersebut muncul.</p>
+        <div class="drainspike"><i class="r"></i><i class="g"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 EVENT ================= -->
+<section class="dark" id="event">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">02</span><h2>Event-Driven — Siklus Bulanan</h2><span class="freq">frekuensi: bulanan</span></div>
+    <p class="sec-intro reveal-up">Menunggangi jadwal yang sudah pasti: peluncuran saham baru dan pembagian dividen. Profit asimetris karena risiko dan waktunya terukur.</p>
+    <div class="grid2">
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 2.A</span><span class="tag">e-IPO</span></div>
+        <h3>E-IPO Squeeze</h3>
+        <p><b>Syarat lolos:</b> dana untuk ekspansi (capex), bukan bayar utang; tanpa waran; lock-up ketat; digarap solo oleh lead underwriter papan atas.</p>
+        <p><b>Taktik modal:</b> pecah idle cash ke beberapa akun, masing-masing maksimum Rp99 juta, agar masuk tingkat penjatahan ritel yang rasionya lebih besar.</p>
+        <div class="stepper" id="ipoStepper">
+          <div class="rail"></div>
+          <div class="pt active" data-i="0"><div class="dot"></div><span>HARI-1</span><b>Pantau ARA</b></div>
+          <div class="pt" data-i="1"><div class="dot"></div><span>HARI-7</span><b>Likuidasi total</b></div>
+          <div class="pt" data-i="2"><div class="dot"></div><span>BULAN-7</span><b>Awas lock-up</b></div>
+        </div>
+        <a class="card-link" href="#calc-ipo">→ Buka kalkulator alokasi IPO</a>
+      </div>
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 2.B</span><span class="tag">dividen</span></div>
+        <h3>Jebakan Dividen</h3>
+        <p><b>Logika:</b> kenaikan harga menjelang cum-date hampir selalu lebih aman daripada dividennya sendiri.</p>
+        <p><b>Taktik:</b> masuk 2–3 bulan sebelum pengumuman, jual tepat di cum-date, biarkan pemburu yield menanggung ARB di ex-date keesokan harinya.</p>
+        <div class="dtl">
+          <div class="track"><div class="marker"></div></div>
+          <div class="labels"><span>Akumulasi senyap</span><span>Hype publik</span><span style="color:var(--cuan);">Cum-Date — JUAL</span><span style="color:var(--boncos);">Ex-Date — ARB</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 AKUMULASI ================= -->
+<section class="paper" id="akumulasi">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">03</span><h2>Akumulasi — Permainan Paus</h2><span class="freq">frekuensi: kuartalan</span></div>
+    <p class="sec-intro reveal-up">Tier kesabaran. Modal besar diparkir mengikuti agenda restrukturisasi pengendali — rights issue raksasa dan saham yang sengaja "ditidurkan".</p>
+    <div class="grid2">
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 3.A</span><span class="tag">rights issue</span></div>
+        <h3>Rights Issue Raksasa</h3>
+        <p><b>Logika dilusi:</b> rasio penerbitan ekstrem (1:3 atau lebih) memaksa pengendali menebus haknya — kehilangan kendali lebih mahal daripada menyuntik modal. Ritel yang kehabisan uang tunai akan terdilusi dan haknya jatuh ke <em>pembeli siaga</em>.</p>
+        <p><b>Dua skenario:</b> jika Anda <b>sudah pegang saham</b> sebelum prospektus diskon terbit → itu <span class="stamp ancaman" style="font-size:10px;padding:2px 6px;">ancaman</span>, modal Anda tak akan menang melawan kedalaman dana pengendali. Jika Anda <b>100% cash menunggu</b> dan pengendali tercatat sebagai pembeli siaga → itu <span class="stamp peluang" style="font-size:10px;padding:2px 6px;">peluang</span>, tunggu harga jatuh ke level modal pengendali.</p>
+        <a class="card-link" href="#calc-ri">→ Buka kalkulator cost basis rights issue</a>
+      </div>
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 3.B</span><span class="tag">papan khusus</span></div>
+        <h3>Naga Tidur di Rp50</h3>
+        <p><b>Logika:</b> saham dikunci di harga dasar (gocap) pada papan pemantauan khusus, sementara volume besar berpindah tangan lewat pasar negosiasi — akumulasi senyap dengan risiko penurunan mendekati nol secara struktural.</p>
+        <p><b>Eksekusi:</b> masuk perlahan di harga dasar, lalu diamkan. Saat status administrasi dicabut dan saham ditarik kembali ke harga wajar, potensi kenaikan bisa berlipat-lipat.</p>
+        <div class="flatdot"><div class="floor"></div><div class="spike a"></div><div class="spike b"></div><div class="spike c"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 ARBITRASE ================= -->
+<section class="dark" id="arbitrase">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">04</span><h2>Arbitrase Senyap — Risiko Rendah</h2><span class="freq">frekuensi: situasional</span></div>
+    <p class="sec-intro reveal-up">Celah regulasi dan transaksi "ruang gelap" (Pasar Negosiasi). Probabilitas menang mendekati pasti jika dieksekusi sebelum publik sadar.</p>
+    <div class="grid2">
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 4.A</span><span class="tag">tender wajib</span></div>
+        <h3>Spread Tender Wajib (MTO)</h3>
+        <p><b>Logika:</b> pengendali baru yang mengakuisisi &gt;50% saham wajib membeli sisa saham publik di harga tetap. Karena prosesnya butuh 30–45 hari, harga di pasar reguler sering tertinggal di bawah harga tender.</p>
+        <p><b>Eksekusi:</b> beli di harga pasar, tahan, serahkan saat masa tender tiba — mengunci margin <em>spread</em> tanpa peduli arah IHSG.</p>
+        <a class="card-link" href="#calc-mto">→ Buka kalkulator spread MTO</a>
+      </div>
+      <div class="card reveal-up">
+        <div class="card-eyebrow"><span>Modul 4.B</span><span class="tag">pasar negosiasi</span></div>
+        <h3>Forensik Dark Pool</h3>
+        <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:180px;border:1px solid var(--line);padding:12px;">
+            <span class="stamp beli" style="font-size:10px;padding:2px 6px;">beli</span>
+            <p style="margin-top:8px;font-size:12.8px;">Crossing di atas harga reguler (premium) → indikasi M&amp;A atau investor strategis masuk. Harga eceran akan dikerek menyusul.</p>
+          </div>
+          <div style="flex:1;min-width:180px;border:1px solid var(--line);padding:12px;">
+            <span class="stamp hindari" style="font-size:10px;padding:2px 6px;">hindari</span>
+            <p style="margin-top:8px;font-size:12.8px;">Crossing di bawah harga reguler (diskon) → indikasi gadai saham (repo) gagal bayar. Harga di layar reguler hanyalah ilusi penahan margin call.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 VPA ================= -->
+<section class="paper" id="vpa">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">05</span><h2>Matriks VPA — Harga vs Volume</h2><span class="freq">klik tiap kuadran</span></div>
+    <p class="sec-intro reveal-up">Volume adalah satu-satunya indikator tanpa jeda waktu. Empat kombinasi harga-volume ini menentukan apakah pergerakan harga itu nyata atau ilusi.</p>
+    <div class="vpa-wrap reveal-up">
+      <div class="vpa-axis-y"><span>Volume Naik</span><span>Volume Turun</span></div>
+      <div class="vpa-axis-x"><span>Harga Turun</span><span>Harga Naik</span></div>
+      <div class="vpa-grid" id="vpaGrid">
+        <!-- Top-left: Vol↑ Harga↓ = Distribusi | Top-right: Vol↑ Harga↑ = Markup -->
+        <!-- Bot-left: Vol↓ Harga↓ = Sehat     | Bot-right: Vol↓ Harga↑ = BullTrap -->
+        <div class="vpa-cell" data-q="distribusi" style="order:1;">
+          <div><span class="eq">harga ↓ · volume ↑</span><h4>Distribusi</h4></div>
+          <span class="stamp jual" style="font-size:10px;padding:2px 6px;">jual</span>
+        </div>
+        <div class="vpa-cell" data-q="markup" style="order:2;">
+          <div><span class="eq">harga ↑ · volume ↑</span><h4>Markup</h4></div>
+          <span class="stamp beli" style="font-size:10px;padding:2px 6px;">beli</span>
+        </div>
+        <div class="vpa-cell" data-q="sehat" style="order:3;">
+          <div><span class="eq">harga ↓ · volume ↓</span><h4>Koreksi Sehat</h4></div>
+          <span class="stamp tahan" style="font-size:10px;padding:2px 6px;">tahan</span>
+        </div>
+        <div class="vpa-cell" data-q="bulltrap" style="order:4;">
+          <div><span class="eq">harga ↑ · volume ↓</span><h4>Jebakan Bull</h4></div>
+          <span class="stamp awas" style="font-size:10px;padding:2px 6px;">awas</span>
+        </div>
+      </div>
+      <div class="vpa-detail" id="vpaDetail"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 MANIPULASI ================= -->
+<section class="dark" id="manipulasi">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">06</span><h2>Lapangan Manipulasi</h2><span class="freq">klik untuk lihat penangkal</span></div>
+    <p class="sec-intro reveal-up">Delapan pola jebakan likuiditas paling sering dipakai market maker di papan lokal — dan cara forensik membongkarnya tanpa perlu kode broker real-time.</p>
+    <div class="grid2" id="trapGrid"></div>
+  </div>
+</section>
+
+<!-- ================= 07 KALKULATOR ================= -->
+<section class="paper" id="kalkulator">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">07</span><h2>Kalkulator Trading</h2><span class="freq">5 alat siap pakai</span></div>
+    <p class="sec-intro reveal-up">Semua hitungan berjalan di peramban Anda — tidak ada data yang dikirim ke mana pun. Isi angka, hasil muncul langsung.</p>
+
+    <div class="acc" id="accWrap">
+
+      <div class="acc-item open" id="calc-size">
+        <div class="acc-head"><div class="t"><span class="n">01</span><h3>Ukuran Posisi — Aturan ADTV</h3></div><span class="plus">+</span></div>
+        <div class="acc-body"><div class="acc-inner">
+          <p class="acc-note">Batas aman: jangan ambil posisi melebihi 5–10% dari rata-rata nilai transaksi harian (ADTV) sebuah saham, agar tetap lincah keluar-masuk tanpa menggerakkan harga sendiri.</p>
+          <div class="field"><label>ADTV saham (Rp Miliar)</label><input type="number" id="sz_adtv" value="100"></div>
+          <div class="field"><label>Batas alokasi (%) — geser 5–10</label><input type="range" id="sz_pct" min="5" max="10" step="0.5" value="7"><span class="mono" id="sz_pctval" style="width:40px;text-align:right;">7%</span></div>
+          <div class="result-box">
+            <div class="result-row"><span>Maksimum posisi disarankan</span><b id="sz_out">Rp 7,00 Miliar</b></div>
+            <div class="result-row muted"><span>Catatan</span><span>posisi di atas batas ini rawan slippage saat exit cepat</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="acc-item" id="calc-fee">
+        <div class="acc-head"><div class="t"><span class="n">02</span><h3>Titik Impas Fee &amp; Hurdle Rate</h3></div><span class="plus">+</span></div>
+        <div class="acc-body"><div class="acc-inner">
+          <p class="acc-note">Sebelum menembak posisi taktis, pastikan target profit jauh di atas total biaya bolak-balik.</p>
+          <div class="field"><label>Fee beli (%)</label><input type="number" id="fe_buy" value="0.15" step="0.01"></div>
+          <div class="field"><label>Fee jual (%)</label><input type="number" id="fe_sell" value="0.25" step="0.01"></div>
+          <div class="field"><label>Target net yield diinginkan (%)</label><input type="number" id="fe_target" value="3" step="0.5"></div>
+          <div class="result-box">
+            <div class="result-row"><span>Titik impas (round-trip fee)</span><b id="fe_break">0,40%</b></div>
+            <div class="result-row"><span>Target gross minimum</span><b id="fe_gross">3,40%</b></div>
+            <div class="result-row"><span>Hurdle rate disarankan</span><b id="fe_hurdle">5,00%</b></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="acc-item" id="calc-ri">
+        <div class="acc-head"><div class="t"><span class="n">03</span><h3>Cost Basis Rights Issue (Dilusi)</h3></div><span class="plus">+</span></div>
+        <div class="acc-body"><div class="acc-inner">
+          <p class="acc-note">Bandingkan modal rata-rata Anda terhadap modal rata-rata pengendali setelah serangkaian rights issue.</p>
+          <div class="field"><label>Harga entri Anda (Rp/saham)</label><input type="number" id="ri_retail" value="15000"></div>
+          <div class="field"><label>Harga entri pengendali (Rp/saham)</label><input type="number" id="ri_konglo" value="10000"></div>
+          <div class="field"><label>Jumlah ronde rights issue</label><input type="number" id="ri_rounds" value="3" min="1" max="5"></div>
+          <div class="rounds-box" id="ri_roundsInputs"></div>
+          <div class="scenario-toggle" id="ri_scenario">
+            <label class="active" data-v="hold"><input type="radio" name="ri_sc" value="hold" checked> Saya sudah pegang sahamnya</label>
+            <label data-v="cash"><input type="radio" name="ri_sc" value="cash"> Saya 100% cash, menunggu</label>
+          </div>
+          <div class="result-box">
+            <div class="result-row"><span>Rata-rata modal Anda</span><b id="ri_avgRetail">—</b></div>
+            <div class="result-row"><span>Rata-rata modal pengendali</span><b id="ri_avgKonglo">—</b></div>
+            <div class="result-row"><span>Selisih (gap)</span><b id="ri_gap">—</b></div>
+            <div class="result-verdict" id="ri_verdict"></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="acc-item" id="calc-ipo">
+        <div class="acc-head"><div class="t"><span class="n">04</span><h3>Alokasi e-IPO — Skema Multi Akun</h3></div><span class="plus">+</span></div>
+        <div class="acc-body"><div class="acc-inner">
+          <p class="acc-note">Pecah idle cash menjadi beberapa akun agar setiap rupiah tetap mengantre di tier penjatahan ritel.</p>
+          <div class="field"><label>Total idle cash (Rp Juta)</label><input type="number" id="ip_cash" value="500"></div>
+          <div class="field"><label>Batas maksimum per akun (Rp Juta)</label><input type="number" id="ip_max" value="99"></div>
+          <div class="field"><label>Rasio penjatahan tier ritel (%)</label><input type="number" id="ip_rrate" value="50" step="0.1"></div>
+          <div class="field"><label>Rasio penjatahan tier institusi (%)</label><input type="number" id="ip_irate" value="11.5" step="0.1"></div>
+          <div class="field"><label>Estimasi kenaikan hari-1 (%)</label><input type="number" id="ip_gain" value="11" step="0.5"></div>
+          <div class="result-box">
+            <div class="result-row"><span>Jumlah akun dibutuhkan</span><b id="ip_accounts">—</b></div>
+            <div class="result-row"><span>Estimasi cuan — skema split (multi akun)</span><b id="ip_profitSplit">—</b></div>
+            <div class="result-row"><span>Estimasi cuan — skema lumpsum (1 akun)</span><b id="ip_profitLump">—</b></div>
+            <div class="result-row" style="border-top:1px dashed var(--emas);padding-top:10px;margin-top:4px;"><span>Selisih keuntungan split vs lumpsum</span><b id="ip_diff">—</b></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="acc-item" id="calc-mto">
+        <div class="acc-head"><div class="t"><span class="n">05</span><h3>Spread Tender / Crossing Nego</h3></div><span class="plus">+</span></div>
+        <div class="acc-body"><div class="acc-inner">
+          <p class="acc-note">Hitung margin arbitrase antara harga pasar reguler dan harga tender wajib (MTO) atau crossing Pasar Negosiasi.</p>
+          <div class="field"><label>Harga pasar reguler saat ini (Rp)</label><input type="number" id="mt_market" value="2400"></div>
+          <div class="field"><label>Harga tender / crossing (Rp)</label><input type="number" id="mt_tender" value="2500"></div>
+          <div class="field"><label>Estimasi hari ke penyelesaian</label><input type="number" id="mt_days" value="35"></div>
+          <div class="result-box">
+            <div class="result-row"><span>Spread arbitrase</span><b id="mt_spread">—</b></div>
+            <div class="result-row"><span>Yield setahunkan (annualized)</span><b id="mt_annual">—</b></div>
+            <div class="result-verdict" id="mt_verdict"></div>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= 08 GLOSARIUM ================= -->
+<section class="dark" id="glosarium">
+  <div class="wrap">
+    <div class="sec-head reveal-up"><span class="num">08</span><h2>Glosarium</h2><span class="freq">ketik untuk menyaring</span></div>
+    <div class="glos-search reveal-up"><input type="text" id="glosSearch" placeholder="cari istilah… misal: ARA, nego, free float"></div>
+    <div class="glos-grid" id="glosGrid"></div>
+  </div>
+</section>
+
+<footer class="dark">
+  <div class="wrap">
+    <div class="rule"></div>
+    <p>Console ini disusun dari catatan riset pribadi mengenai struktur mikro Bursa Efek Indonesia — bandarmology, order flow, dan aksi korporasi. Seluruh kalkulator bersifat ilustratif dan menggunakan angka yang Anda masukkan sendiri.</p>
+    <p><b>Bukan rekomendasi investasi dan bukan nasihat keuangan berlisensi.</b> Trading saham mengandung risiko kehilangan modal sebagian atau seluruhnya. Lakukan riset mandiri dan sesuaikan dengan profil risiko Anda.</p>
+    <div class="credit">SOVEREIGN WEALTH ALPHA / IHSG · console pribadi v1.0</div>
+  </div>
+</footer>
+
+<script>
+/* ===================== TICKER ===================== */
+(function(){
+  const items = [
+    ['$BREN','+'],['$TPIA','+'],['$PANI','+'],['$CUAN','-'],['$ADRO','+'],['$BBCA','+'],
+    ['$AMMN','-'],['$MDKA','+'],['$BUMI','-'],['$RAJA','+'],['$DSSA','-'],['$BRPT','+'],
+    ['$GOTO','-'],['$ARTO','+'],['$NCKL','+'],['$MBMA','-']
+  ];
+  function row(){
+    return items.map(([t,d])=>{
+      const cls = d==='+'?'up':'down';
+      const arrow = d==='+'?'▲':'▼';
+      const pct = (Math.random()*6+0.3).toFixed(2);
+      return `<span class="mono ${cls}">${t} <b>${arrow} ${pct}%</b></span>`;
+    }).join('');
+  }
+  const track = document.getElementById('tickerTrack');
+  track.innerHTML = '<span class="ticker-tag">SIMULASI · BUKAN DATA LIVE</span>'+row()+'<span class="ticker-tag">SIMULASI · BUKAN DATA LIVE</span>'+row();
+})();
+
+/* ===================== NAV ACTIVE STATE ===================== */
+(function(){
+  const links = document.querySelectorAll('.tabs a');
+  const map = {};
+  links.forEach(l=>map[l.dataset.sec]=l);
+  const sections = Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+
+  /* set first tab active on load */
+  if(links[0]) links[0].classList.add('active');
+
+  /* click: scroll + set active immediately */
+  links.forEach(l=>{
+    l.addEventListener('click', ()=>{
+      links.forEach(x=>x.classList.remove('active'));
+      l.classList.add('active');
+    });
+  });
+
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        map[e.target.id] && map[e.target.id].classList.add('active');
+      }
+    });
+  },{rootMargin:'-40% 0px -50% 0px'});
+  sections.forEach(s=>obs.observe(s));
+})();
+
+/* ===================== SCROLL REVEAL ===================== */
+(function(){
+  const els = document.querySelectorAll('.reveal-up');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target);} });
+  },{threshold:.12});
+  els.forEach(el=>obs.observe(el));
+})();
+
+/* ===================== HERO CANVAS CHART ===================== */
+(function(){
+  const canvas = document.getElementById('heroChart');
+  const ctx = canvas.getContext('2d');
+  function size(){
+    const r = canvas.getBoundingClientRect();
+    canvas.width = r.width*2; canvas.height = r.height*2;
+    ctx.setTransform(2,0,0,2,0,0);
+  }
+  size();
+  window.addEventListener('resize', ()=>{size(); draw(); });
+
+  // deterministic pseudo-random walk
+  let seed = 42;
+  function rnd(){ seed = (seed*9301+49297)%233280; return seed/233280; }
+  const N = 70;
+  const pts = [];
+  let v = 50;
+  for(let i=0;i<N;i++){
+    let drift = 0;
+    if(i>10 && i<24) drift = 1.4;       // markup phase
+    else if(i>=24 && i<40) drift = -0.6; // shakeout/pullback
+    else if(i>=40 && i<54) drift = 1.1;  // markup 2
+    else if(i>=54) drift = -1.3;         // distribution
+    v += drift + (rnd()-0.5)*2.2;
+    v = Math.max(10, Math.min(95, v));
+    pts.push(v);
+  }
+  const labels = [
+    {i:16, text:'Markup', color:'#46b08a'},
+    {i:32, text:'Koreksi Sehat', color:'#cf9b46'},
+    {i:60, text:'Distribusi', color:'#cf5b42'}
+  ];
+
+  let progress = 0;
+  const W = ()=>canvas.getBoundingClientRect().width;
+  const H = ()=>canvas.getBoundingClientRect().height;
+
+  function draw(){
+    const w = W(), h = H();
+    ctx.clearRect(0,0,w,h);
+    // grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for(let g=0;g<5;g++){
+      const y = (h-30)*g/4 + 14;
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+    const count = Math.max(2, Math.floor(progress*N));
+    ctx.beginPath();
+    for(let i=0;i<count;i++){
+      const x = (i/(N-1))*w;
+      const y = 14 + (1-pts[i]/100)*(h-30);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = '#cf9b46';
+    ctx.lineWidth = 2.4;
+    ctx.lineJoin='round';
+    ctx.stroke();
+    // fill under
+    ctx.lineTo((Math.max(0,count-1)/(N-1))*w, h-16);
+    ctx.lineTo(0,h-16);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0,'rgba(207,155,70,0.22)');
+    grad.addColorStop(1,'rgba(207,155,70,0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // annotations
+    labels.forEach(lb=>{
+      if(count > lb.i){
+        const x = (lb.i/(N-1))*w;
+        const y = 14 + (1-pts[lb.i]/100)*(h-30);
+        ctx.fillStyle = lb.color;
+        ctx.beginPath(); ctx.arc(x,y,3.4,0,7); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+        ctx.setLineDash([2,3]);
+        ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-26); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = '600 11px IBM Plex Mono, monospace';
+        ctx.fillStyle = lb.color;
+        ctx.textAlign = 'center';
+        ctx.fillText(lb.text, x, y-32);
+      }
+    });
+  }
+
+  function loop(){
+    progress += 0.012;
+    if(progress>1.15) progress = 1.15;
+    draw();
+    if(progress<1.15) requestAnimationFrame(loop);
+  }
+  const heroObs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ progress=0; loop(); heroObs.disconnect(); }
+    });
+  },{threshold:.3});
+  heroObs.observe(canvas);
+})();
+
+/* ===================== BUBBLE CHART — MODULE MAP (vanilla canvas) ===================== */
+(function(){
+  const canvas = document.getElementById('bubbleChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const bubbles = [
+    {x:9,  y:2.5, r:9,  label:'Momentum Breakout',   c:'#46b08a'},
+    {x:8,  y:3,   r:8,  label:'ARA Gap-Up',           c:'#46b08a'},
+    {x:7.5,y:3.4, r:8,  label:'ARB Capitulation',     c:'#cf9b46'},
+    {x:5,  y:5,   r:11, label:'e-IPO Squeeze',         c:'#cf9b46'},
+    {x:4.5,y:4.4, r:10, label:'Jebakan Dividen',       c:'#cf9b46'},
+    {x:2.3,y:7.6, r:15, label:'Rights Issue Raksasa',  c:'#cf5b42'},
+    {x:2,  y:6.8, r:13, label:'Naga Tidur Rp50',       c:'#cf5b42'},
+    {x:1.6,y:6.2, r:12, label:'Spread MTO',            c:'#cf5b42'}
+  ];
+
+  const PAD = {l:10, r:10, t:14, b:26};
+
+  function setup(){
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.parentElement ? canvas.parentElement.clientWidth : 400;
+    const cssH = 230;
+    canvas.width  = cssW * dpr;
+    canvas.height = cssH * dpr;
+    canvas.style.width  = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    render(cssW, cssH);
+  }
+
+  function render(W, H){
+    ctx.clearRect(0, 0, W, H);
+    const dW = W - PAD.l - PAD.r;
+    const dH = H - PAD.t - PAD.b;
+
+    /* grid lines */
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for(let i=0;i<=4;i++){
+      const y = PAD.t + dH*i/4;
+      ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(W-PAD.r,y); ctx.stroke();
+    }
+    for(let i=0;i<=5;i++){
+      const x = PAD.l + dW*i/5;
+      ctx.beginPath(); ctx.moveTo(x,PAD.t); ctx.lineTo(x,H-PAD.b); ctx.stroke();
+    }
+
+    /* bubbles */
+    bubbles.forEach(b=>{
+      const cx = PAD.l + (b.x/10)*dW;
+      const cy = PAD.t + (1 - b.y/9)*dH;
+      ctx.beginPath();
+      ctx.arc(cx, cy, b.r, 0, Math.PI*2);
+      ctx.fillStyle = b.c + 'bb';
+      ctx.fill();
+      ctx.strokeStyle = b.c;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    /* axis labels */
+    ctx.font = '10px IBM Plex Mono, monospace';
+    ctx.fillStyle = '#9aa098';
+    ctx.textAlign = 'left';
+    ctx.fillText('← Kuartalan', PAD.l, H - 6);
+    ctx.textAlign = 'right';
+    ctx.fillText('Harian →', W - PAD.r, H - 6);
+    ctx.textAlign = 'center';
+    ctx.fillText('Frekuensi Eksekusi', W/2, H - 6);
+
+    /* store for hit-testing */
+    canvas._meta = {bubbles, PAD, dW, dH, W, H};
+  }
+
+  setup();
+  window.addEventListener('resize', setup);
+
+  /* tooltip */
+  const tip = Object.assign(document.createElement('div'), {});
+  tip.style.cssText = 'position:fixed;background:#12161c;border:1px solid #cf9b46;padding:5px 10px;'
+    + 'font-family:"IBM Plex Mono",monospace;font-size:11px;color:#E9E4D5;pointer-events:none;'
+    + 'opacity:0;transition:opacity .15s;z-index:999;white-space:nowrap;';
+  document.body.appendChild(tip);
+
+  canvas.addEventListener('mousemove', e=>{
+    if(!canvas._meta) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const {bubbles:bs, PAD:p, dW, dH} = canvas._meta;
+    const W = rect.width, H = rect.height;
+    const dWr = W - p.l - p.r, dHr = H - p.t - p.b;
+    let hit = null;
+    bs.forEach(b=>{
+      const cx = p.l + (b.x/10)*dWr;
+      const cy = p.t + (1 - b.y/9)*dHr;
+      if(Math.hypot(mx-cx, my-cy) < b.r + 3) hit = b;
+    });
+    if(hit){
+      tip.textContent = hit.label;
+      tip.style.left  = (e.clientX + 14) + 'px';
+      tip.style.top   = (e.clientY - 10) + 'px';
+      tip.style.opacity = '1';
+      canvas.style.cursor = 'crosshair';
+    } else {
+      tip.style.opacity = '0';
+      canvas.style.cursor = 'default';
+    }
+  });
+  canvas.addEventListener('mouseleave', ()=>{ tip.style.opacity='0'; canvas.style.cursor='default'; });
+})();
+
+/* ===================== ALLOCATION BAR ===================== */
+(function(){
+  const t = document.getElementById('allocTaktis');
+  const s = document.getElementById('allocStruk');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ t.style.width='25%'; s.style.width='75%'; obs.disconnect(); } });
+  },{threshold:.4});
+  obs.observe(t.parentElement);
+})();
+
+/* ===================== STEPPER CYCLE ===================== */
+(function(){
+  const pts = document.querySelectorAll('#ipoStepper .pt');
+  let i=0;
+  setInterval(()=>{
+    pts.forEach(p=>p.classList.remove('active'));
+    pts[i].classList.add('active');
+    i=(i+1)%pts.length;
+  },1900);
+})();
+
+/* ===================== VPA MATRIX ===================== */
+(function(){
+  const info = {
+    markup:{title:'Markup — Akumulasi Sah', stamp:'beli', text:'Harga naik ditemani volume yang juga naik berarti suplai sedang dimakan habis oleh pembeli bermodal besar. Ini satu-satunya kuadran yang layak dikejar sebagai entry baru.'},
+    bulltrap:{title:'Jebakan Bull — Kelelahan Tren', stamp:'awas', text:'Harga masih naik tapi volume justru menyusut. Tidak ada pembeli baru yang menopang — ini sisa momentum lama. Ambil untung sekarang, jangan menambah posisi.'},
+    sehat:{title:'Koreksi Sehat — Bukan Distribusi', stamp:'tahan', text:'Harga turun tapi volume mengecil berarti yang keluar hanya pedagang kecil yang mengambil untung tipis. Pemegang besar belum membuang barang — posisi aman ditahan.'},
+    distribusi:{title:'Distribusi — Pembuangan Massal', stamp:'jual', text:'Harga turun ditemani volume yang melonjak adalah tanda paling jelas pembuangan barang oleh pemegang besar. Berapa pun bagus ceritanya, keluar dari posisi ini lebih dulu.'}
+  };
+  const cells = document.querySelectorAll('.vpa-cell');
+  const detail = document.getElementById('vpaDetail');
+  cells.forEach(c=>{
+    c.addEventListener('click', ()=>{
+      cells.forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');
+      const d = info[c.dataset.q];
+      detail.innerHTML = `<h4>${d.title} <span class="stamp ${d.stamp}" style="font-size:10px;padding:2px 6px;margin-left:8px;">${d.stamp}</span></h4><p>${d.text}</p>`;
+      detail.classList.add('show');
+    });
+  });
+})();
+
+/* ===================== TRAPS (MANIPULASI) ===================== */
+(function(){
+  const traps = [
+    {n:'01', t:'Tembok Semu (Spoofing)', lead:'Antrean beli ratusan ribu lot dipasang untuk memancing pembeli ritel ikut menyerbu, lalu dicabut detik sebelum tersentuh.', fix:'<b>Penangkal:</b> abaikan antrean statis di order book. Fokus pada transaksi yang benar-benar tereksekusi (running trade) — jika tidak ada match besar yang riil, itu dinding kosong.'},
+    {n:'02', t:'Paus Berbaju Ritel', lead:'Akumulasi besar dipecah ke puluhan akun broker ritel kecil agar terlihat seperti aksi FOMO masyarakat biasa.', fix:'<b>Penangkal:</b> bagi nilai transaksi total broker dengan frekuensi transaksinya. Nilai besar dengan frekuensi sangat sedikit menandakan satu tangan besar, bukan banyak tangan kecil.'},
+    {n:'03', t:'Cat Air (Wash Trading)', lead:'Transaksi jual-beli dilakukan ke diri sendiri lewat broker terafiliasi untuk mencetak volume palsu agar masuk papan saham paling aktif.', fix:'<b>Penangkal:</b> bandingkan nilai transaksi kotor (gross) dan bersih (net) broker tersebut. Gross besar tapi net mendekati nol berarti volume itu cuma ilusi.'},
+    {n:'04', t:'Manisan Waran', lead:'Saham baru dibagikan waran gratis rasio besar. Begitu pasar buka, pemegang lama membuang saham induk tanpa henti karena modalnya sudah balik dari penjualan waran.', fix:'<b>Penangkal:</b> jangan pegang saham induk yang membagikan waran rasio besar (1:1 ke atas) — risiko dumping di hari pertama sangat tinggi.'},
+    {n:'05', t:'Numpang Rebalancing Indeks', lead:'Smart money mengakumulasi jauh sebelum pengumuman masuk indeks global, lalu menjual ke dana pasif yang wajib membeli secara mekanis di hari efektif.', fix:'<b>Penangkal:</b> beli di rumor jauh sebelum hari efektif, dan jual sebelum atau tepat saat hari eksekusi — jangan menunggu dana pasif benar-benar masuk.'},
+    {n:'06', t:'Dilusi Tanpa Penjamin', lead:'Rights issue jumbo dirilis dengan narasi ekspansi, tapi tanpa pembeli siaga yang jelas — dana publik dipakai sekadar menambal utang ke afiliasi.', fix:'<b>Penangkal:</b> cari klausul "pembeli siaga" di prospektus. Tanpa nama jelas yang berani menebus di harga wajar, anggap ini skema penyelamatan, bukan pertumbuhan.'},
+    {n:'07', t:'Sumbat Suplai (Cornering)', lead:'Ratusan perusahaan cangkang menyedot saham publik diam-diam sampai suplai beredar sangat kering, lalu harga dikerek dengan modal kecil.', fix:'<b>Penangkal:</b> hindari saham dengan nilai transaksi harian di bawah Rp10 miliar walau tren naiknya kencang — keluar dari posisi akan sangat sulit.'},
+    {n:'08', t:'Jual Saat Berita Pecah', lead:'Berita bagus akhirnya rilis ke publik, ritel ramai membeli — tepat saat itu pemegang besar yang sudah akumulasi lama mulai membuang barangnya.', fix:'<b>Penangkal:</b> bandingkan tingkat heboh berita dengan arah transaksi institusi. Jika sentimen publik tinggi tapi institusi tercatat menjual, itu adalah alat keluar mereka.'}
+  ];
+  const grid = document.getElementById('trapGrid');
+  grid.innerHTML = traps.map(t=>`
+    <div class="trap" data-open="0">
+      <div class="trap-head"><h4>${t.t}</h4><span class="trap-num mono">${t.n}</span></div>
+      <p class="lead">${t.lead}</p>
+      <span class="toggle">[ lihat penangkal ]</span>
+      <div class="reveal"><p>${t.fix}</p></div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.trap').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const open = card.classList.toggle('open');
+      card.querySelector('.toggle').textContent = open ? '[ tutup ]' : '[ lihat penangkal ]';
+    });
+  });
+})();
+
+/* ===================== ACCORDION CALCULATORS ===================== */
+(function(){
+  document.querySelectorAll('.acc-head').forEach(h=>{
+    h.addEventListener('click', ()=>{
+      h.parentElement.classList.toggle('open');
+    });
+  });
+
+  /* card links that reference an accordion item → auto-open it on click */
+  document.querySelectorAll('.card-link[href^="#calc"]').forEach(link=>{
+    link.addEventListener('click', ()=>{
+      const id = link.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if(target && !target.classList.contains('open')){
+        target.classList.add('open');
+      }
+    });
+  });
+})();
+
+const fmtRp = (n)=> 'Rp ' + n.toLocaleString('id-ID', {maximumFractionDigits:2});
+const fmtPct = (n)=> n.toLocaleString('id-ID', {maximumFractionDigits:2}) + '%';
+
+/* --- Calc 01: Position Sizing --- */
+(function(){
+  const adtv = document.getElementById('sz_adtv');
+  const pct = document.getElementById('sz_pct');
+  const pctval = document.getElementById('sz_pctval');
+  const out = document.getElementById('sz_out');
+  function calc(){
+    const a = parseFloat(adtv.value)||0;
+    const p = parseFloat(pct.value)||0;
+    pctval.textContent = p+'%';
+    out.textContent = fmtRp(a*p/100) + ' Miliar';
+  }
+  adtv.addEventListener('input', calc);
+  pct.addEventListener('input', calc);
+  calc();
+})();
+
+/* --- Calc 02: Fee / Hurdle --- */
+(function(){
+  const buy = document.getElementById('fe_buy');
+  const sell = document.getElementById('fe_sell');
+  const target = document.getElementById('fe_target');
+  const breakEl = document.getElementById('fe_break');
+  const grossEl = document.getElementById('fe_gross');
+  const hurdleEl = document.getElementById('fe_hurdle');
+  function calc(){
+    const b = parseFloat(buy.value)||0, s = parseFloat(sell.value)||0, t = parseFloat(target.value)||0;
+    const brk = b+s;
+    const gross = brk+t;
+    const hurdle = Math.max(gross,5);
+    breakEl.textContent = fmtPct(brk);
+    grossEl.textContent = fmtPct(gross);
+    hurdleEl.textContent = fmtPct(hurdle);
+  }
+  [buy,sell,target].forEach(el=>el.addEventListener('input',calc));
+  calc();
+})();
+
+/* --- Calc 03: Rights Issue Dilution --- */
+(function(){
+  const retail = document.getElementById('ri_retail');
+  const konglo = document.getElementById('ri_konglo');
+  const rounds = document.getElementById('ri_rounds');
+  const box = document.getElementById('ri_roundsInputs');
+  const avgRetailEl = document.getElementById('ri_avgRetail');
+  const avgKongloEl = document.getElementById('ri_avgKonglo');
+  const gapEl = document.getElementById('ri_gap');
+  const verdictEl = document.getElementById('ri_verdict');
+  const scenarioLabels = document.querySelectorAll('#ri_scenario label');
+
+  function renderRounds(){
+    const n = Math.max(1, Math.min(5, parseInt(rounds.value)||1));
+    let html = '';
+    for(let i=1;i<=n;i++){
+      const def = 5000;
+      html += `<div class="field"><label>Harga tebus ronde ${i} (Rp/saham)</label><input type="number" class="ri_round" value="${def}"></div>`;
+    }
+    box.innerHTML = html;
+    box.querySelectorAll('.ri_round').forEach(el=>el.addEventListener('input', calc));
+    calc();
+  }
+
+  function getScenario(){
+    const r = document.querySelector('input[name="ri_sc"]:checked');
+    return r ? r.value : 'hold';
+  }
+
+  function calc(){
+    const rt = parseFloat(retail.value)||0;
+    const kg = parseFloat(konglo.value)||0;
+    const roundEls = Array.from(document.querySelectorAll('.ri_round'));
+    const roundVals = roundEls.map(el=>parseFloat(el.value)||0);
+    const n = roundVals.length;
+    const sumRounds = roundVals.reduce((a,b)=>a+b,0);
+    const avgRetail = (rt + sumRounds)/(n+1);
+    const avgKonglo = (kg + sumRounds)/(n+1);
+    const gap = avgRetail - avgKonglo;
+    const gapPct = avgKonglo!==0 ? (gap/avgKonglo*100) : 0;
+    avgRetailEl.textContent = fmtRp(avgRetail);
+    avgKongloEl.textContent = fmtRp(avgKonglo);
+    gapEl.textContent = fmtRp(gap) + ' (' + fmtPct(gapPct) + ')';
+
+    const scenario = getScenario();
+    if(scenario==='hold'){
+      verdictEl.innerHTML = `<span class="stamp ancaman" style="font-size:10px;padding:2px 6px;">ancaman</span> Cost basis Anda lebih mahal dari pengendali. Pertimbangkan keluar sebelum proses dilusi berlanjut, kecuali Anda sendiri adalah pembeli siaga.`;
+    } else {
+      verdictEl.innerHTML = `<span class="stamp peluang" style="font-size:10px;padding:2px 6px;">peluang</span> Tunggu harga pasar reguler turun mendekati ${fmtRp(avgKonglo)} — itu zona akumulasi dengan modal setara pengendali.`;
+    }
+  }
+
+  rounds.addEventListener('input', renderRounds);
+  retail.addEventListener('input', calc);
+  konglo.addEventListener('input', calc);
+  scenarioLabels.forEach(l=>{
+    l.addEventListener('click', ()=>{
+      scenarioLabels.forEach(x=>x.classList.remove('active'));
+      l.classList.add('active');
+      setTimeout(calc, 0);
+    });
+  });
+  renderRounds();
+})();
+
+/* --- Calc 04: IPO Sybil Allocation --- */
+(function(){
+  const ids = ['ip_cash','ip_max','ip_rrate','ip_irate','ip_gain'];
+  const els = {}; ids.forEach(id=>els[id]=document.getElementById(id));
+  const accEl = document.getElementById('ip_accounts');
+  const splitEl = document.getElementById('ip_profitSplit');
+  const lumpEl = document.getElementById('ip_profitLump');
+  const diffEl = document.getElementById('ip_diff');
+  function calc(){
+    const cash = parseFloat(els.ip_cash.value)||0;
+    const max = parseFloat(els.ip_max.value)||1;
+    const rrate = parseFloat(els.ip_rrate.value)||0;
+    const irate = parseFloat(els.ip_irate.value)||0;
+    const gain = parseFloat(els.ip_gain.value)||0;
+    const accounts = Math.ceil(cash/max);
+    const profitSplit = cash * (rrate/100) * (gain/100);
+    const profitLump = cash * (irate/100) * (gain/100);
+    accEl.textContent = accounts + ' akun';
+    splitEl.textContent = fmtRp(profitSplit) + ' Juta';
+    lumpEl.textContent = fmtRp(profitLump) + ' Juta';
+    diffEl.textContent = fmtRp(profitSplit-profitLump) + ' Juta';
+  }
+  Object.values(els).forEach(el=>el.addEventListener('input', calc));
+  calc();
+})();
+
+/* --- Calc 05: MTO / Dark Pool Spread --- */
+(function(){
+  const market = document.getElementById('mt_market');
+  const tender = document.getElementById('mt_tender');
+  const days = document.getElementById('mt_days');
+  const spreadEl = document.getElementById('mt_spread');
+  const annualEl = document.getElementById('mt_annual');
+  const verdictEl = document.getElementById('mt_verdict');
+  function calc(){
+    const m = parseFloat(market.value)||0;
+    const t = parseFloat(tender.value)||0;
+    const d = parseFloat(days.value)||1;
+    const spread = m!==0 ? (t-m)/m*100 : 0;
+    const annual = spread*(365/d);
+    spreadEl.textContent = fmtPct(spread);
+    annualEl.textContent = fmtPct(annual);
+    if(spread<=0){
+      verdictEl.innerHTML = `<span class="stamp hindari" style="font-size:10px;padding:2px 6px;">hindari</span> Harga tender tidak lebih tinggi dari pasar — tidak ada margin arbitrase di sini.`;
+    } else {
+      verdictEl.innerHTML = `<span class="stamp beli" style="font-size:10px;padding:2px 6px;">beli</span> Margin terkunci ${fmtPct(spread)} dalam ${d} hari, setara ${fmtPct(annual)} per tahun jika diulang.`;
+    }
+  }
+  [market,tender,days].forEach(el=>el.addEventListener('input', calc));
+  calc();
+})();
+
+/* ===================== GLOSSARY ===================== */
+(function(){
+  const terms = [
+    {t:'ARA', d:'Auto Reject Atas — batas kenaikan harga maksimum sebuah saham dalam satu hari perdagangan.'},
+    {t:'ARB', d:'Auto Reject Bawah — batas penurunan harga maksimum sebuah saham dalam satu hari perdagangan.'},
+    {t:'UMA', d:'Unusual Market Activity — peringatan bursa saat harga atau volume bergerak tidak wajar.'},
+    {t:'Suspensi', d:'Penghentian sementara perdagangan suatu saham oleh otoritas bursa.'},
+    {t:'FCA', d:'Full Call Auction — mekanisme lelang buta untuk saham di papan pemantauan khusus, transaksi dicocokkan hanya pada jam tertentu.'},
+    {t:'Gocap', d:'Sebutan harga saham Rp50 — batas harga terendah di papan reguler.'},
+    {t:'Pasar Negosiasi (Nego)', d:'Pasar tempat transaksi disepakati langsung di luar antrean order book, harga dan volume bebas dari batas ARA/ARB.'},
+    {t:'Pasar Tunai', d:'Pasar dengan mekanisme sama seperti reguler namun penyelesaiannya wajib hari itu juga (T+0).'},
+    {t:'Bandarmology', d:'Analisis pergerakan dana besar lewat data transaksi broker untuk membaca akumulasi atau distribusi.'},
+    {t:'ADTV', d:'Average Daily Traded Value — rata-rata nilai transaksi harian sebuah saham, dasar batas aman ukuran posisi.'},
+    {t:'Free Float', d:'Persentase saham yang benar-benar beredar dan dapat diperdagangkan publik, di luar genggaman pengendali.'},
+    {t:'Standby Buyer', d:'Pembeli siaga yang berkomitmen menyerap sisa saham rights issue yang tidak ditebus pemegang saham lain.'},
+    {t:'Lock-up Period', d:'Masa larangan menjual saham bagi pemegang saham tertentu (biasanya pra-IPO), umumnya 8 bulan di pasar lokal.'},
+    {t:'Cum-Date / Ex-Date', d:'Cum-Date: hari terakhir berhak mendapat dividen. Ex-Date: hari setelahnya, harga otomatis disesuaikan turun.'},
+    {t:'Rights Issue', d:'Penerbitan saham baru kepada pemegang saham lama dengan hak memesan efek terlebih dahulu (HMETD), sering disertai diskon harga.'},
+    {t:'Waran', d:'Instrumen turunan yang memberi hak membeli saham di harga tertentu pada periode mendatang, sering diberikan gratis saat IPO atau rights issue.'},
+    {t:'Backdoor Listing (BDL)', d:'Memasukkan aset besar ke dalam perusahaan publik kecil yang sudah tercatat, tanpa proses IPO penuh.'},
+    {t:'MTO', d:'Mandatory Tender Offer — kewajiban membeli sisa saham publik setelah seorang investor mengakuisisi lebih dari 50% kepemilikan.'},
+    {t:'HAKA / HAKI', d:'Hajar Kanan (beli di harga offer/lebih tinggi) dan Hajar Kiri (jual di harga bid/lebih rendah) — istilah agresi order.'},
+    {t:'Tape Reading', d:'Membaca transaksi yang benar-benar tereksekusi (running trade) untuk membedakan order nyata dari order pancingan (spoofing).'},
+    {t:'Broker Summary (Broksum)', d:'Rekap transaksi harian per kode broker, dasar analisis konsentrasi pembeli dan penjual.'},
+    {t:'Repo', d:'Gadai saham sebagai jaminan utang, sering menjadi sebab transaksi diskon besar di Pasar Negosiasi.'},
+    {t:'Crossing', d:'Transaksi tutup sendiri antara dua pihak (atau dua akun afiliasi) pada harga dan volume yang telah disepakati.'},
+    {t:'Velocity Akumulasi', d:'Kecepatan kenaikan persentase kepemilikan sebuah entitas dalam rentang waktu singkat, sinyal akumulasi agresif.'}
+  ];
+  const grid = document.getElementById('glosGrid');
+  const search = document.getElementById('glosSearch');
+  function render(filter){
+    const f = (filter||'').toLowerCase();
+    const filtered = terms.filter(x => x.t.toLowerCase().includes(f) || x.d.toLowerCase().includes(f));
+    if(filtered.length===0){
+      grid.innerHTML = '<div class="glos-empty">Tidak ada istilah yang cocok.</div>';
+      return;
+    }
+    grid.innerHTML = filtered.map(x=>`<div class="glos-item"><dt class="mono">${x.t}</dt><dd>${x.d}</dd></div>`).join('');
+  }
+  search.addEventListener('input', ()=>render(search.value));
+  render('');
+})();
+</script>
+</body>
+</html>
