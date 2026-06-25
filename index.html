@@ -1,924 +1,1013 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BEAT IT — IHSG Strategy Checklist</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BEAT IT — IHSG Strategy Checklist</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0E1A;--surf:#111827;--surf2:#1A2235;--bord:#1F2E45;
+  --gold:#F0B429;--gdim:#C49020;--green:#10B981;--red:#EF4444;
+  --blue:#3B82F6;--text:#E2E8F0;--muted:#64748B;--muted2:#94A3B8;
+  --r:10px;--rs:6px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+.mono{font-family:'SF Mono','Fira Code','Fira Mono','Roboto Mono',Courier,monospace}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* ── HEADER ── */
+.site-header{background:var(--surf);border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;flex-wrap:wrap;gap:12px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-icon{width:46px;height:46px;background:linear-gradient(135deg,#F0B429,#C49020);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;animation:pgold 3s ease-in-out infinite;box-shadow:0 0 20px rgba(240,180,41,.35)}
+@keyframes pgold{0%,100%{box-shadow:0 0 20px rgba(240,180,41,.35)}50%{box-shadow:0 0 40px rgba(240,180,41,.7)}}
+.brand-title{font-size:26px;font-weight:800;letter-spacing:5px;color:var(--gold);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
+.brand-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'SF Mono',monospace}
+.hstats{display:flex;gap:8px;flex-wrap:wrap}
+.spill{background:var(--surf2);border:1px solid var(--bord);border-radius:6px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;min-width:88px}
+.slabel{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'SF Mono',monospace}
+.sval{font-family:'SF Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)}
+#gstatus{color:var(--muted2)}
+#gstatus.ready{color:var(--green)}
+#gstatus.warn{color:var(--gold)}
+
+/* EKG */
+.ekg{height:38px;background:linear-gradient(to bottom,var(--surf),var(--bg));overflow:hidden;position:relative}
+.ekg svg{width:200%;height:100%;animation:ekgroll 6s linear infinite}
+@keyframes ekgroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── DEFENSE ── */
+.defense{padding:52px 0 36px;background:linear-gradient(180deg,var(--bg) 0%,rgba(17,24,39,.8) 100%)}
+.modhead{text-align:center;margin-bottom:36px}
+.modbadge{display:inline-block;background:rgba(240,180,41,.12);color:var(--gold);border:1px solid rgba(240,180,41,.3);border-radius:20px;padding:4px 16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-family:'SF Mono',monospace;margin-bottom:14px}
+.modhead h2{font-size:30px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px}
+.modhead p{color:var(--muted2);font-size:14px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.dcard{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);display:flex;overflow:hidden;transition:border-color .3s,transform .2s}
+.dcard:hover{transform:translateY(-2px)}
+.dcard.ok{border-color:var(--green)}
+.dsigbar{width:4px;background:var(--muted);flex-shrink:0;transition:background .5s}
+.dcard.ok .dsigbar{background:var(--green);box-shadow:0 0 8px var(--green)}
+.dcont{padding:20px;flex:1}
+.dtop{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dnum{font-family:'SF Mono',monospace;font-size:11px;color:var(--muted)}
+.dtag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-family:'SF Mono',monospace}
+.dcont h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.dcont p{color:var(--muted2);font-size:13px;margin-bottom:14px}
+
+/* ── TIER NAV ── */
+.tiernav{background:var(--surf);border-bottom:1px solid var(--bord);position:sticky;top:82px;z-index:90}
+.tiernav-inner{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tnbtn{background:none;border:none;border-bottom:3px solid transparent;color:var(--muted2);font-size:13px;font-weight:600;padding:14px 22px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.tnbtn:hover{color:var(--text)}
+.tnbtn.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── STRATEGIES ── */
+.strategies{padding:32px 0 80px}
+.tsec{display:none}
+.tsec.active{display:block}
+
+.tierhead{display:flex;align-items:center;gap:18px;margin-bottom:28px;padding:20px 24px;background:var(--surf);border-radius:var(--r);border:1px solid var(--bord);flex-wrap:wrap}
+.tierhead h2{font-size:22px;font-weight:800;margin-bottom:4px;letter-spacing:-.3px}
+.tierhead p{color:var(--muted2);font-size:13px}
+.tbadge{padding:6px 16px;border-radius:6px;font-family:'SF Mono',monospace;font-size:12px;font-weight:700;white-space:nowrap}
+.t1b{background:rgba(59,130,246,.12);color:#60A5FA;border:1px solid rgba(59,130,246,.3)}
+.t2b{background:rgba(139,92,246,.12);color:#A78BFA;border:1px solid rgba(139,92,246,.3)}
+.t3b{background:rgba(16,185,129,.12);color:#34D399;border:1px solid rgba(16,185,129,.3)}
+.t4b{background:rgba(240,180,41,.12);color:var(--gold);border:1px solid rgba(240,180,41,.3)}
+.talloc{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.talloc span{font-family:'SF Mono',monospace;font-size:11px;color:var(--muted2)}
+.abar{width:120px;height:6px;background:var(--surf2);border-radius:3px;overflow:hidden}
+.afill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:3px}
+
+/* ── CARDS ── */
+.scard{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);display:flex;overflow:hidden;margin-bottom:20px;transition:border-color .3s;animation:cdin .4s ease both}
+@keyframes cdin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.scard.go{border-color:var(--green)}
+.scard.partial{border-color:var(--gold)}
+.scard.nogo{border-color:var(--red)}
+.ssigbar{width:5px;background:var(--bord);flex-shrink:0;transition:background .5s,box-shadow .5s}
+.scard.go .ssigbar{background:var(--green);box-shadow:0 0 14px var(--green)}
+.scard.partial .ssigbar{background:var(--gold);box-shadow:0 0 14px var(--gold)}
+.scard.nogo .ssigbar{background:var(--red);box-shadow:0 0 14px var(--red)}
+.sbody{padding:24px;flex:1}
+.smeta{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.snum{font-family:'SF Mono',monospace;font-size:11px;color:var(--muted)}
+.stag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-family:'SF Mono',monospace}
+.scycle{font-family:'SF Mono',monospace;font-size:10px;background:var(--surf2);color:var(--muted2);padding:2px 8px;border-radius:4px;margin-left:auto}
+.sbody>h3{font-size:20px;font-weight:800;margin-bottom:8px;letter-spacing:-.3px}
+.sdesc{color:var(--muted2);font-size:13px;line-height:1.65;margin-bottom:20px}
+
+/* ── CHECKLIST ── */
+.chkgroup{background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);padding:16px;margin-bottom:16px}
+.chkgroup h4{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted2);font-family:'SF Mono',monospace;margin-bottom:12px}
+.chi{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(31,46,69,.5)}
+.chi:last-child,.chrow:last-child{border-bottom:none}
+.chrow{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(31,46,69,.5)}
+.chk{-webkit-appearance:none;appearance:none;width:18px;height:18px;border:2px solid var(--bord);border-radius:4px;background:var(--bg);cursor:pointer;flex-shrink:0;margin-top:1px;transition:all .2s;position:relative}
+.chk:checked{background:var(--green);border-color:var(--green)}
+.chk:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:11px;font-weight:900}
+.chi label,.chrow label{font-size:13px;color:var(--muted2);cursor:pointer;line-height:1.5}
+.chk:checked+label{color:var(--text)}
+
+/* ── CALC ── */
+.calcbox,.calcblk{background:var(--bg);border:1px solid var(--bord);border-radius:var(--rs);padding:16px;margin:14px 0}
+.calcblk h4{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted2);font-family:'SF Mono',monospace;margin-bottom:12px}
+.clabel{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-family:'SF Mono',monospace}
+.cinput{width:100%;background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);padding:10px 12px;color:var(--text);font-family:'SF Mono',monospace;font-size:14px;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+.cinput::-webkit-inner-spin-button,.cinput::-webkit-outer-spin-button{-webkit-appearance:none}
+.cinput:focus{border-color:var(--gold)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:12px}
+.cresult{margin-top:12px}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(31,46,69,.5);font-size:13px}
+.rrow:last-child{border-bottom:none}
+.rrow span:first-child{color:var(--muted2)}
+.rval{font-family:'SF Mono',monospace;font-size:14px;font-weight:700;color:var(--text)}
+.tg{color:var(--green)!important}.tr{color:var(--red)!important}.ty{color:var(--gold)!important}
+.vbox{margin-top:10px;padding:11px 14px;border-radius:var(--rs);font-family:'SF Mono',monospace;font-size:13px;font-weight:600;display:none;animation:fin .3s ease}
+@keyframes fin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.vbox.go{display:block;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.vbox.nogo{display:block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.vbox.warn{display:block;background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.3);color:var(--gold)}
+
+/* ── ACTION / EXIT BOXES ── */
+.abox{padding:12px 16px;border-radius:var(--rs);font-size:13px;margin:12px 0;line-height:1.6}
+.abox span{font-weight:700}
+.abox.buy{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:#6EE7B7}
+.abox.danger{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#FCA5A5}
+.exitbox{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-left:3px solid var(--red);border-radius:var(--rs);padding:12px 16px;margin-top:16px}
+.exitlbl{display:block;font-family:'SF Mono',monospace;font-size:11px;color:var(--red);letter-spacing:1px;margin-bottom:6px}
+.exitbox p{font-size:13px;color:var(--muted2)}
+.warnbox{background:rgba(239,68,68,.1);border:1px solid var(--red);border-radius:var(--rs);padding:12px 16px;color:#FCA5A5;font-size:13px;font-weight:600;margin:10px 0;animation:fin .3s ease}
+
+/* ── SIGNAL STATUS ── */
+.sigstat{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 14px;background:var(--surf2);border-radius:var(--rs);font-family:'SF Mono',monospace;font-size:12px;color:var(--muted2);transition:all .3s}
+.sigstat.go{background:rgba(16,185,129,.08);color:var(--green)}
+.sigstat.nogo{background:rgba(239,68,68,.08);color:var(--red)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot.idle{background:var(--muted)}
+.dot.go{background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1s ease-in-out infinite}
+.dot.partial{background:var(--gold)}
+.dot.nogo{background:var(--red)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── SUB TABS ── */
+.stabs{display:flex;border-bottom:1px solid var(--bord);margin-bottom:16px}
+.stab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted2);font-size:13px;font-weight:600;padding:8px 16px;cursor:pointer;transition:all .2s;margin-bottom:-1px}
+.stab:hover{color:var(--text)}
+.stab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.subcont{display:none}
+.subcont.active{display:block;animation:fin .25s ease}
+
+/* ── TIER SELECTOR / ARB ── */
+.tiersel{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.tbtn{background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);color:var(--muted2);font-size:12px;padding:8px 14px;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+.tbtn:hover{color:var(--text);border-color:var(--muted2)}
+.tbtn.active{background:rgba(240,180,41,.1);color:var(--gold);border-color:var(--gold)}
+.tbtn small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.tbtn.active small{color:var(--gdim)}
+.holdbox{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);border-radius:var(--rs);font-size:13px;color:var(--gold)}
+.arbtrack{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
+.arbday{flex:1;min-width:58px;text-align:center;padding:10px 6px;background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);font-size:11px;color:var(--muted);font-family:'SF Mono',monospace}
+.arbday small{display:block;font-size:9px;margin-top:3px;color:var(--muted)}
+.arbday.aday{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green)}
+.arbday.aday small{color:var(--green)}
+.arbday.dday{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.2);color:var(--gold)}
+.arbday.dday small{color:var(--gold)}
+
+/* ── FOOTER ── */
+.footer{background:var(--surf);border-top:1px solid var(--bord);padding:44px 0 28px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin-bottom:32px}
+.fcol h4{font-size:14px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bord)}
+.rbars{display:flex;flex-direction:column;gap:12px}
+.ritem{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted2)}
+.ritem span:first-child{min-width:100px}
+.ritem span:last-child{font-family:'SF Mono',monospace;font-size:11px;min-width:28px;text-align:right}
+.rbar{flex:1;height:5px;background:var(--surf2);border-radius:3px;overflow:hidden}
+.rfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:3px;width:0%;transition:width .6s ease}
+.qrtable{display:flex;flex-direction:column;gap:6px}
+.qrrow{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid rgba(31,46,69,.5);color:var(--muted2)}
+.qrval{font-family:'SF Mono',monospace;font-weight:700;color:var(--text)}
+.remlist{display:flex;flex-direction:column;gap:8px}
+.remitem{font-size:13px;color:var(--muted2);padding:6px 0;border-bottom:1px solid rgba(31,46,69,.4)}
+.fbot{text-align:center;padding-top:20px;border-top:1px solid var(--bord)}
+.fbot p{font-size:11px;color:var(--muted);font-family:'SF Mono',monospace}
+
+@media(max-width:640px){
+  .header-inner{padding:12px 16px}
+  .hstats{display:none}
+  .dgrid{grid-template-columns:1fr}
+  .tierhead{flex-direction:column;align-items:flex-start}
+  .talloc{margin-left:0}
+  .container{padding:0 16px}
+  .tnbtn{padding:12px 14px;font-size:12px}
+}
+</style>
 </head>
 <body>
-  <!-- HEADER -->
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="brand">
-        <div class="brand-icon">⚡</div>
-        <div>
-          <h1 class="brand-title">BEAT IT</h1>
-          <p class="brand-sub">IHSG Strategy Execution System</p>
+
+<!-- HEADER -->
+<header class="site-header">
+<div class="header-inner">
+  <div class="brand">
+    <div class="brand-icon">⚡</div>
+    <div>
+      <div class="brand-title">BEAT IT</div>
+      <div class="brand-sub">IHSG Strategy Execution System</div>
+    </div>
+  </div>
+  <div class="hstats">
+    <div class="spill"><span class="slabel">MAX AUM</span><span class="sval">Rp 50 M</span></div>
+    <div class="spill"><span class="slabel">Round-Trip Fee</span><span class="sval">0.40%</span></div>
+    <div class="spill"><span class="slabel">Status</span><span class="sval" id="gstatus">IDLE</span></div>
+  </div>
+</div>
+<div class="ekg">
+  <svg viewBox="0 0 2400 38" preserveAspectRatio="none">
+    <polyline points="0,19 60,19 80,4 100,34 120,19 200,19 220,4 240,34 260,19 400,19 420,4 440,34 460,19 600,19 620,2 640,36 660,19 800,19 820,4 840,34 860,19 1000,19 1020,4 1040,34 1060,19 1200,19 1220,4 1240,34 1260,19 1400,19 1420,4 1440,34 1460,19 1600,19 1620,4 1640,34 1660,19 1800,19 1820,4 1840,34 1860,19 2000,19 2020,4 2040,34 2060,19 2200,19 2220,4 2240,34 2260,19 2400,19"
+      fill="none" stroke="#F0B429" stroke-width="1.5" opacity=".8"/>
+  </svg>
+</div>
+</header>
+
+<!-- DEFENSE MODULE -->
+<section class="defense">
+<div class="container">
+  <div class="modhead">
+    <div class="modbadge">🛡️ MODUL I — WAJIB</div>
+    <h2>Sistem Pertahanan Margin</h2>
+    <p>3 Aturan wajib yang harus dipenuhi <strong>SEBELUM</strong> eksekusi strategi apapun</p>
+  </div>
+  <div class="dgrid">
+
+    <!-- Card 1: Capacity -->
+    <div class="dcard" id="dc-cap">
+      <div class="dsigbar" id="dsb-cap"></div>
+      <div class="dcont">
+        <div class="dtop"><span class="dnum mono">01</span><span class="dtag">KAPASITAS</span></div>
+        <h3>Aturan ADTV 5–10%</h3>
+        <p>Max size posisi tidak boleh melebihi 10% dari ADTV emiten untuk mencegah slippage saat exit.</p>
+        <div class="calcbox">
+          <label class="clabel">ADTV Emiten (Rp Miliar)</label>
+          <input class="cinput" type="number" id="adtv" placeholder="Contoh: 100"/>
+          <div class="cresult">
+            <div class="rrow"><span>Batas Konservatif (5%)</span><span class="rval" id="cap-lo">—</span></div>
+            <div class="rrow"><span>Batas Maksimal (10%)</span><span class="rval" id="cap-hi">—</span></div>
+          </div>
         </div>
-      </div>
-      <div class="header-stats">
-        <div class="stat-pill" id="aum-pill">
-          <span class="stat-label">MAX AUM</span>
-          <span class="stat-val">Rp 50 Miliar</span>
-        </div>
-        <div class="stat-pill" id="fee-pill">
-          <span class="stat-label">ROUND-TRIP FEE</span>
-          <span class="stat-val">0.40%</span>
-        </div>
-        <div class="stat-pill" id="status-pill">
-          <span class="stat-label">STATUS</span>
-          <span class="stat-val" id="global-status">IDLE</span>
+        <div class="chrow">
+          <input type="checkbox" id="d1" class="chk"/>
+          <label for="d1">Size posisi di bawah 10% ADTV ✓</label>
         </div>
       </div>
     </div>
-    <!-- EKG Line -->
-    <div class="ekg-bar">
-      <svg class="ekg-svg" viewBox="0 0 1200 40" preserveAspectRatio="none">
-        <polyline id="ekg-line" points="0,20 50,20 70,5 90,35 110,20 200,20 220,5 240,35 260,20 350,20 370,2 390,38 410,20 500,20 520,5 540,35 560,20 700,20 720,5 740,35 760,20 900,20 920,5 940,35 960,20 1100,20 1120,5 1140,35 1160,20 1200,20" 
-          fill="none" stroke="#F0B429" stroke-width="1.5" />
-      </svg>
-    </div>
-  </header>
 
-  <!-- DEFENSE MODULE BANNER -->
-  <section class="defense-module">
-    <div class="container">
-      <div class="module-header">
-        <span class="module-badge">🛡️ MODUL I</span>
-        <h2>Sistem Pertahanan Margin</h2>
-        <p>3 Aturan wajib yang harus dipenuhi SEBELUM eksekusi strategi apapun</p>
-      </div>
-      <div class="defense-grid">
-
-        <!-- Rule 1: Capacity -->
-        <div class="defense-card" id="card-capacity">
-          <div class="defense-signal-bar" id="bar-capacity"></div>
-          <div class="defense-content">
-            <div class="defense-top">
-              <span class="defense-num">01</span>
-              <span class="defense-tag">KAPASITAS</span>
-            </div>
-            <h3>Aturan ADTV 5-10%</h3>
-            <p>Maksimal size posisi per emiten tidak boleh melebihi 10% dari ADTV.</p>
-            <div class="calc-box" id="calc-capacity">
-              <label class="calc-label">ADTV Emiten (Rp Miliar)</label>
-              <input class="calc-input" type="number" id="adtv-input" placeholder="Contoh: 100" />
-              <div class="calc-result" id="capacity-result">
-                <div class="result-row">
-                  <span>Batas Konservatif (5%)</span>
-                  <span class="result-val" id="cap-low">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Batas Maksimal (10%)</span>
-                  <span class="result-val" id="cap-high">—</span>
-                </div>
-              </div>
-            </div>
-            <div class="checklist-row">
-              <input type="checkbox" id="chk-capacity" class="chk" />
-              <label for="chk-capacity">Size posisi di bawah 10% ADTV ✓</label>
-            </div>
+    <!-- Card 2: Hurdle -->
+    <div class="dcard" id="dc-hrd">
+      <div class="dsigbar" id="dsb-hrd"></div>
+      <div class="dcont">
+        <div class="dtop"><span class="dnum mono">02</span><span class="dtag">HURDLE RATE</span></div>
+        <h3>The 5% Buffer Rule</h3>
+        <p>Jarak ke resistance &gt;5% agar setelah fee 0.40% + slippage 1.5%, Net Yield masih &gt;3%.</p>
+        <div class="calcbox">
+          <div class="cgrid">
+            <div><label class="clabel">Harga Entry (Rp)</label><input class="cinput" type="number" id="ep" placeholder="1000"/></div>
+            <div><label class="clabel">Harga Resistance (Rp)</label><input class="cinput" type="number" id="rp" placeholder="1100"/></div>
+          </div>
+          <div class="cresult">
+            <div class="rrow"><span>Jarak ke Resistance</span><span class="rval" id="hrd-gap">—</span></div>
+            <div class="rrow"><span>Setelah Fee 0.40%</span><span class="rval" id="hrd-fee">—</span></div>
+            <div class="rrow"><span>Setelah Slippage 1.5%</span><span class="rval" id="hrd-slip">—</span></div>
+            <div class="vbox" id="hrd-v"></div>
           </div>
         </div>
-
-        <!-- Rule 2: Hurdle Rate -->
-        <div class="defense-card" id="card-hurdle">
-          <div class="defense-signal-bar" id="bar-hurdle"></div>
-          <div class="defense-content">
-            <div class="defense-top">
-              <span class="defense-num">02</span>
-              <span class="defense-tag">HURDLE RATE</span>
-            </div>
-            <h3>The 5% Buffer Rule</h3>
-            <p>Jarak ke resistance harus &gt;5% agar setelah fee + slippage, Net Yield masih &gt;3%.</p>
-            <div class="calc-box">
-              <label class="calc-label">Harga Entry (Rp)</label>
-              <input class="calc-input" type="number" id="entry-price" placeholder="Contoh: 1000" />
-              <label class="calc-label" style="margin-top:8px">Harga Resistance (Rp)</label>
-              <input class="calc-input" type="number" id="resist-price" placeholder="Contoh: 1100" />
-              <div class="calc-result" id="hurdle-result">
-                <div class="result-row">
-                  <span>Jarak ke Resistance</span>
-                  <span class="result-val" id="hurdle-gap">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Setelah Fee 0.40%</span>
-                  <span class="result-val" id="hurdle-net">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Setelah Slippage 1.5%</span>
-                  <span class="result-val" id="hurdle-final">—</span>
-                </div>
-                <div class="verdict-box" id="hurdle-verdict"></div>
-              </div>
-            </div>
-            <div class="checklist-row">
-              <input type="checkbox" id="chk-hurdle" class="chk" />
-              <label for="chk-hurdle">Jarak ke resistance &gt;5% ✓</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Rule 3: Zero Churn -->
-        <div class="defense-card" id="card-churn">
-          <div class="defense-signal-bar" id="bar-churn"></div>
-          <div class="defense-content">
-            <div class="defense-top">
-              <span class="defense-num">03</span>
-              <span class="defense-tag">ZERO-CHURN</span>
-            </div>
-            <h3>Sniper Strike Policy</h3>
-            <p>Tier 3 & 4: Setelah akumulasi selesai, tahan 3–9 bulan. Matikan mentalitas scalper.</p>
-            <div class="calc-box">
-              <label class="calc-label">Tier Strategi yang Digunakan</label>
-              <div class="tier-selector">
-                <button class="tier-btn" data-tier="1">Tier 1<br/><small>Harian</small></button>
-                <button class="tier-btn" data-tier="2">Tier 2<br/><small>Bulanan</small></button>
-                <button class="tier-btn active" data-tier="3">Tier 3<br/><small>Kuartalan</small></button>
-                <button class="tier-btn" data-tier="4">Tier 4<br/><small>Situasional</small></button>
-              </div>
-              <div class="hold-advice" id="hold-advice">
-                <span class="hold-icon">🎯</span>
-                <span id="hold-text">Hold 3–9 bulan. Matikan layar setelah akumulasi.</span>
-              </div>
-            </div>
-            <div class="checklist-row">
-              <input type="checkbox" id="chk-churn" class="chk" />
-              <label for="chk-churn">Strategi exit sudah ditentukan sebelum entry ✓</label>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- TIER NAVIGATION -->
-  <nav class="tier-nav">
-    <div class="container">
-      <div class="tier-nav-inner">
-        <button class="tier-nav-btn active" data-target="tier1">⚡ Tier 1 — Tactical</button>
-        <button class="tier-nav-btn" data-target="tier2">🚀 Tier 2 — Event-Driven</button>
-        <button class="tier-nav-btn" data-target="tier3">🐋 Tier 3 — Whales</button>
-        <button class="tier-nav-btn" data-target="tier4">🕶️ Tier 4 — Invisible</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- MAIN STRATEGY SECTIONS -->
-  <main class="strategies">
-    <div class="container">
-
-      <!-- ===== TIER 1 ===== -->
-      <section class="tier-section active" id="tier1">
-        <div class="tier-header">
-          <div class="tier-badge tier1-badge">TIER 1</div>
-          <div>
-            <h2>Tactical Strikes</h2>
-            <p>Mesin pencetak kas aktif · 20–30% modal · Siklus Harian/Mingguan</p>
-          </div>
-          <div class="tier-alloc">
-            <div class="alloc-bar"><div class="alloc-fill" style="width:25%"></div></div>
-            <span>20–30% Modal</span>
-          </div>
-        </div>
-
-        <!-- Strategy 1: Breakout -->
-        <div class="strategy-card" id="s1">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·01</span>
-              <span class="s-tag">HIGH-VOLUME MOMENTUM</span>
-              <span class="s-cycle">Harian</span>
-            </div>
-            <h3>Breakout Anomaly</h3>
-            <p class="s-desc">Mengekor institusi yang sedang menyuntikkan likuiditas masif. Entry saat volume breakout ≥300% MA20 dan offer dimakan habis.</p>
-
-            <div class="checklist-group">
-              <h4>📋 Checklist Eksekusi</h4>
-              <div class="chk-item">
-                <input type="checkbox" id="s1-c1" class="chk" />
-                <label for="s1-c1">Harga menembus level resistensi teknikal yang valid</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s1-c2" class="chk" />
-                <label for="s1-c2">Volume hari ini ≥ 300% MA20 Volume</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s1-c3" class="chk" />
-                <label for="s1-c3">Antrean Offer (jual) dimakan habis di Running Trade</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s1-c4" class="chk" />
-                <label for="s1-c4">Sudah cek ADTV (Rule 01) & Hurdle Rate (Rule 02)</label>
-              </div>
-            </div>
-
-            <div class="calc-block">
-              <h4>🔢 Kalkulator Volume Anomaly</h4>
-              <div class="calc-grid">
-                <div>
-                  <label class="calc-label">MA20 Volume (lot)</label>
-                  <input class="calc-input" type="number" id="s1-ma20" placeholder="Contoh: 50000" />
-                </div>
-                <div>
-                  <label class="calc-label">Volume Hari Ini (lot)</label>
-                  <input class="calc-input" type="number" id="s1-vol" placeholder="Contoh: 180000" />
-                </div>
-              </div>
-              <div class="calc-result" id="s1-result">
-                <div class="result-row">
-                  <span>Volume Multiplier</span>
-                  <span class="result-val" id="s1-mult">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Threshold 300%</span>
-                  <span class="result-val" id="s1-thresh">—</span>
-                </div>
-                <div class="verdict-box" id="s1-verdict"></div>
-              </div>
-            </div>
-
-            <div class="exit-box">
-              <span class="exit-label">🚨 EXIT SIGNAL</span>
-              <p>Jual seketika saat harga masih naik TAPI: (1) Volume mulai menyusut, atau (2) Antrean Bid mulai gembos → Bull Trap / Exhaustion.</p>
-            </div>
-            <div class="signal-status" id="s1-status">
-              <span class="dot idle"></span><span>Checklist belum lengkap</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Strategy 2: ARA/ARB -->
-        <div class="strategy-card" id="s2">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·02</span>
-              <span class="s-tag">MICROSTRUCTURE ANOMALY</span>
-              <span class="s-cycle">Harian</span>
-            </div>
-            <h3>ARA Gap-Up & ARB Capitulation Sweep</h3>
-            <p class="s-desc">Eksploitasi aturan Auto Reject. ARA: momentum euforia. ARB: tangkap kapitulasinya.</p>
-
-            <div class="sub-strategy-tabs">
-              <button class="sub-tab active" data-sub="ara">ARA Gap-Up Play</button>
-              <button class="sub-tab" data-sub="arb">ARB Capitulation Sweep</button>
-            </div>
-
-            <div class="sub-content active" id="sub-ara">
-              <div class="checklist-group">
-                <h4>📋 Checklist ARA Play</h4>
-                <div class="chk-item">
-                  <input type="checkbox" id="s2-ara1" class="chk" />
-                  <label for="s2-ara1">Saham mengunci ARA dalam 30 menit pertama Sesi 1</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s2-ara2" class="chk" />
-                  <label for="s2-ara2">Antrean Bid sangat tebal dan tidak tergoyahkan</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s2-ara3" class="chk" />
-                  <label for="s2-ara3">Tidak ada aksi jual masif di Running Trade</label>
-                </div>
-              </div>
-              <div class="action-box buy">
-                <span>🟢 AKSI: BELI & HOLD.</span> Jual esok pagi saat Gap-Up terbawa euforia.
-              </div>
-            </div>
-
-            <div class="sub-content" id="sub-arb">
-              <div class="checklist-group">
-                <h4>📋 Checklist ARB Sweep</h4>
-                <div class="chk-item">
-                  <input type="checkbox" id="s2-arb1" class="chk" />
-                  <label for="s2-arb1">Saham terkunci ARB selama 3–5 hari berturut-turut</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s2-arb2" class="chk" />
-                  <label for="s2-arb2">Baru masuk di Hari ke-3 atau ke-4 (abaikan hari 1 & 2)</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s2-arb3" class="chk" />
-                  <label for="s2-arb3">Terjadi ledakan volume serapan ≥ 300% MA20 di hari ARB</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s2-arb4" class="chk" />
-                  <label for="s2-arb4">Harga masih di level ARB (Paus sedang menadah ritel)</label>
-                </div>
-              </div>
-
-              <div class="calc-block" style="margin-top:16px">
-                <h4>🔢 Tracker Hari ARB</h4>
-                <div class="arb-tracker" id="arb-tracker">
-                  <div class="arb-day" data-day="1">Hari 1<br/><small>ABAIKAN</small></div>
-                  <div class="arb-day" data-day="2">Hari 2<br/><small>ABAIKAN</small></div>
-                  <div class="arb-day active-day" data-day="3">Hari 3<br/><small>SIAP MASUK</small></div>
-                  <div class="arb-day active-day" data-day="4">Hari 4<br/><small>OPTIMAL</small></div>
-                  <div class="arb-day danger-day" data-day="5">Hari 5<br/><small>HATI-HATI</small></div>
-                </div>
-              </div>
-              <div class="action-box buy">
-                <span>🟢 AKSI: BELI DI HARGA ARB.</span> Sinyal absolut Paus sedang akumulasi.
-              </div>
-            </div>
-
-            <div class="signal-status" id="s2-status">
-              <span class="dot idle"></span><span>Pilih scenario ARA atau ARB, lalu centang checklist</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== TIER 2 ===== -->
-      <section class="tier-section" id="tier2">
-        <div class="tier-header">
-          <div class="tier-badge tier2-badge">TIER 2</div>
-          <div>
-            <h2>Event-Driven & IPO Arbitrage</h2>
-            <p>Profit asimetris berbasis aksi korporasi · Siklus Bulanan</p>
-          </div>
-          <div class="tier-alloc">
-            <div class="alloc-bar"><div class="alloc-fill" style="width:20%"></div></div>
-            <span>Idle Cash Only</span>
-          </div>
-        </div>
-
-        <!-- Strategy 3: E-IPO -->
-        <div class="strategy-card" id="s3">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·03</span>
-              <span class="s-tag">IPO ARBITRAGE</span>
-              <span class="s-cycle">Per IPO Event</span>
-            </div>
-            <h3>E-IPO Squeeze</h3>
-            <p class="s-desc">Hukum 90/10: 90% sentimen likuiditas, 10% fundamental. Filter prospektus ketat sebelum masuk.</p>
-
-            <div class="checklist-group">
-              <h4>📋 Filter Prospektus (BINER — Satu FAIL = SKIP)</h4>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s3-c1" class="chk" />
-                <label for="s3-c1">✅ Penggunaan dana: &gt;80% untuk CAPEX (Ekspansi)</label>
-              </div>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s3-c2" class="chk" />
-                <label for="s3-c2">✅ Struktur emisi: 100% Saham Murni (TIDAK ADA WARAN)</label>
-              </div>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s3-c3" class="chk" />
-                <label for="s3-c3">✅ Ada Lock-Up Period ketat ≥8 bulan untuk Founder</label>
-              </div>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s3-c4" class="chk" />
-                <label for="s3-c4">✅ Solo Lead Underwriter Tier-1 dengan 100% Winning Rate</label>
-              </div>
-            </div>
-
-            <div class="warning-box" id="ipo-warning" style="display:none">
-              ⛔ WARAN TERDETEKSI = RED FLAG MUTLAK. Waran 1:1 adalah sinyal dumping saham induk. SKIP IPO INI.
-            </div>
-
-            <div class="calc-block">
-              <h4>🔢 Kalkulator Penjatahan & Keputusan H-2</h4>
-              <div class="calc-grid">
-                <div>
-                  <label class="calc-label">Lot yang Didaftarkan</label>
-                  <input class="calc-input" type="number" id="ipo-lot" placeholder="Contoh: 1000" />
-                </div>
-                <div>
-                  <label class="calc-label">Lot yang Diterima (Penjatahan)</label>
-                  <input class="calc-input" type="number" id="ipo-alloc" placeholder="Contoh: 20" />
-                </div>
-              </div>
-              <div class="calc-result" id="ipo-result">
-                <div class="result-row">
-                  <span>Persentase Alokasi</span>
-                  <span class="result-val" id="ipo-pct">—</span>
-                </div>
-                <div class="verdict-box" id="ipo-verdict"></div>
-              </div>
-            </div>
-
-            <div class="checklist-group" style="margin-top:16px">
-              <h4>📋 Taktik Sybil Execution</h4>
-              <div class="chk-item">
-                <input type="checkbox" id="s3-c5" class="chk" />
-                <label for="s3-c5">Modal dipecah ke banyak akun/SID</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s3-c6" class="chk" />
-                <label for="s3-c6">Maksimal Rp 99 Juta per akun (masuk kelompok tier bawah)</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s3-c7" class="chk" />
-                <label for="s3-c7">Hanya menggunakan Idle Cash (bukan modal inti)</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s3-c8" class="chk" />
-                <label for="s3-c8">Target exit: jual bertahap, maksimal tahan hingga Hari ke-7</label>
-              </div>
-            </div>
-            <div class="signal-status" id="s3-status">
-              <span class="dot idle"></span><span>Checklist belum lengkap</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Strategy 4: Dividend Trap -->
-        <div class="strategy-card" id="s4">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·04</span>
-              <span class="s-tag">DIVIDEND TRAP</span>
-              <span class="s-cycle">2–3 Bulan Sebelum RUPS</span>
-            </div>
-            <h3>Front-Running the Yield</h3>
-            <p class="s-desc">Jadikan ritel pemburu dividen sebagai Exit Liquidity. Capital Gain sebelum dividen &gt; dividen itu sendiri.</p>
-
-            <div class="checklist-group">
-              <h4>📋 Checklist Entry</h4>
-              <div class="chk-item">
-                <input type="checkbox" id="s4-c1" class="chk" />
-                <label for="s4-c1">Emiten adalah proksi dividen besar (Batu Bara / Big Banks)</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s4-c2" class="chk" />
-                <label for="s4-c2">Masih 2–3 bulan sebelum tanggal RUPS pembagian dividen</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s4-c3" class="chk" />
-                <label for="s4-c3">Yield dividen expected ≥15% (agar ritel FOMO kuat)</label>
-              </div>
-            </div>
-
-            <div class="calc-block">
-              <h4>🔢 Kalkulator Dividend Strategy</h4>
-              <div class="calc-grid">
-                <div>
-                  <label class="calc-label">Harga Beli (Rp)</label>
-                  <input class="calc-input" type="number" id="div-buy" placeholder="Contoh: 3000" />
-                </div>
-                <div>
-                  <label class="calc-label">Target Jual di Cum-Date (Rp)</label>
-                  <input class="calc-input" type="number" id="div-sell" placeholder="Contoh: 3800" />
-                </div>
-                <div>
-                  <label class="calc-label">Dividen per Saham (Rp)</label>
-                  <input class="calc-input" type="number" id="div-amount" placeholder="Contoh: 500" />
-                </div>
-              </div>
-              <div class="calc-result" id="div-result">
-                <div class="result-row">
-                  <span>Capital Gain (Jual sebelum Ex-Date)</span>
-                  <span class="result-val" id="div-gain">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Yield Dividen Bruto</span>
-                  <span class="result-val" id="div-yield">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Dividen Net (Pajak 10%)</span>
-                  <span class="result-val" id="div-net">—</span>
-                </div>
-                <div class="verdict-box" id="div-verdict"></div>
-              </div>
-            </div>
-
-            <div class="exit-box">
-              <span class="exit-label">🚨 EXIT SIGNAL</span>
-              <p>Saat Cum-Date tiba dan ritel FOMO mengejar yield 15-20% → JUAL 100%. Hindari pajak dividen dan jebakan ARB di Ex-Date.</p>
-            </div>
-            <div class="signal-status" id="s4-status">
-              <span class="dot idle"></span><span>Checklist belum lengkap</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== TIER 3 ===== -->
-      <section class="tier-section" id="tier3">
-        <div class="tier-header">
-          <div class="tier-badge tier3-badge">TIER 3</div>
-          <div>
-            <h2>The Whales Game</h2>
-            <p>Alokasi modal berat · 70–80% · Zero-churn, low stress · Siklus Kuartalan</p>
-          </div>
-          <div class="tier-alloc">
-            <div class="alloc-bar"><div class="alloc-fill" style="width:75%"></div></div>
-            <span>70–80% Modal</span>
-          </div>
-        </div>
-
-        <!-- Strategy 5: Rights Issue -->
-        <div class="strategy-card" id="s5">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·05</span>
-              <span class="s-tag">JUMBO RIGHTS ISSUE</span>
-              <span class="s-cycle">Kuartalan</span>
-            </div>
-            <h3>Control Premium Squeeze</h3>
-            <p class="s-desc">Eksploitasi skema pengenceran yang dirancang Konglomerat. Nilai breakeven selalu asimetris dan menguntungkan mereka.</p>
-
-            <div class="sub-strategy-tabs">
-              <button class="sub-tab active" data-sub="ri-threat">Skenario A: THE THREAT</button>
-              <button class="sub-tab" data-sub="ri-opp">Skenario B: THE OPPORTUNITY</button>
-            </div>
-
-            <div class="sub-content active" id="sub-ri-threat">
-              <div class="action-box danger">
-                <span>🔴 KONDISI:</span> Sudah punya saham di harga ATAS sebelum RI diskon diumumkan.
-              </div>
-              <div class="checklist-group">
-                <h4>📋 Konfirmasi Ancaman</h4>
-                <div class="chk-item critical">
-                  <input type="checkbox" id="s5-threat1" class="chk" />
-                  <label for="s5-threat1">Rights Issue diumumkan dengan diskon ekstrem (&gt;30%)</label>
-                </div>
-                <div class="chk-item critical">
-                  <input type="checkbox" id="s5-threat2" class="chk" />
-                  <label for="s5-threat2">Harga beli saya sudah di atas harga tebus RI</label>
-                </div>
-              </div>
-              <div class="action-box danger">
-                <span>🔴 AKSI WAJIB: LIQUIDATE &amp; ABORT.</span> Cut loss seketika. Jangan adu modal dengan Konglomerat.
-              </div>
-            </div>
-
-            <div class="sub-content" id="sub-ri-opp">
-              <div class="action-box buy">
-                <span>🟢 KONDISI:</span> 100% Cash di luar dan Konglo bertindak sebagai Pembeli Siaga.
-              </div>
-              <div class="checklist-group">
-                <h4>📋 Konfirmasi Peluang</h4>
-                <div class="chk-item">
-                  <input type="checkbox" id="s5-opp1" class="chk" />
-                  <label for="s5-opp1">Prospektus: Konglo adalah STANDBY BUYER (Pembeli Siaga)</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s5-opp2" class="chk" />
-                  <label for="s5-opp2">Saya 100% Cash — tidak punya saham ini sebelumnya</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s5-opp3" class="chk" />
-                  <label for="s5-opp3">Harga sudah bottoming di sekitar harga tebus Konglo</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s5-opp4" class="chk" />
-                  <label for="s5-opp4">Ritel sudah panik terdilusi (sinyal kapitulasi terlihat)</label>
-                </div>
-              </div>
-
-              <div class="calc-block">
-                <h4>🔢 Kalkulator Dilusi Rights Issue</h4>
-                <div class="calc-grid">
-                  <div>
-                    <label class="calc-label">Saham Lama (juta lembar)</label>
-                    <input class="calc-input" type="number" id="ri-old" placeholder="Contoh: 1000" />
-                  </div>
-                  <div>
-                    <label class="calc-label">Saham Baru / Rasio RI</label>
-                    <input class="calc-input" type="number" id="ri-new" placeholder="Contoh: 3000 (1:3)" />
-                  </div>
-                </div>
-                <div class="calc-result" id="ri-result">
-                  <div class="result-row">
-                    <span>Kepemilikan Publik Setelah RI</span>
-                    <span class="result-val" id="ri-ownership">—</span>
-                  </div>
-                  <div class="result-row">
-                    <span>Dilusi Kepemilikan</span>
-                    <span class="result-val" id="ri-dilution">—</span>
-                  </div>
-                  <div class="verdict-box" id="ri-verdict"></div>
-                </div>
-              </div>
-
-              <div class="action-box buy">
-                <span>🟢 AKSI: WAIT &amp; STRIKE.</span> Masuk size besar setelah harga bottoming. Kamu menunggangi kapal bersama Konglo.
-              </div>
-            </div>
-
-            <div class="signal-status" id="s5-status">
-              <span class="dot idle"></span><span>Pilih skenario dan lengkapi checklist</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Strategy 6: FCA Sleeping Dragon -->
-        <div class="strategy-card" id="s6">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·06</span>
-              <span class="s-tag">FCA SLEEPING DRAGON</span>
-              <span class="s-cycle">Situasional</span>
-            </div>
-            <h3>Arbitrase Papan Rp 50</h3>
-            <p class="s-desc">Downside ~0%, upside asimetris ratusan persen. Cari saham ekosistem Konglomerat yang sengaja ditidurkan di FCA.</p>
-
-            <div class="checklist-group">
-              <h4>📋 Checklist Filter</h4>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s6-c1" class="chk" />
-                <label for="s6-c1">Saham berada di Papan Pemantauan Khusus (FCA) / harga Rp 50</label>
-              </div>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s6-c2" class="chk" />
-                <label for="s6-c2">Merupakan bagian dari ekosistem Konglomerat besar / fundamental bagus</label>
-              </div>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s6-c3" class="chk" />
-                <label for="s6-c3">TRIGGER: Tiba-tiba mencetak volume triliunan Rupiah di Pasar Negosiasi</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s6-c4" class="chk" />
-                <label for="s6-c4">Ada katalis potensial (restrukturisasi, rights issue, perubahan pengendali)</label>
-              </div>
-            </div>
-
-            <div class="calc-block">
-              <h4>🔢 Kalkulator Asimetri Risk/Reward</h4>
-              <div class="calc-grid">
-                <div>
-                  <label class="calc-label">Harga Beli (Rp, sekitar 50–51)</label>
-                  <input class="calc-input" type="number" id="fca-buy" placeholder="Contoh: 50" />
-                </div>
-                <div>
-                  <label class="calc-label">Target Harga Pasca FCA Dicabut (Rp)</label>
-                  <input class="calc-input" type="number" id="fca-target" placeholder="Contoh: 300" />
-                </div>
-              </div>
-              <div class="calc-result" id="fca-result">
-                <div class="result-row">
-                  <span>Potensi Upside</span>
-                  <span class="result-val" id="fca-upside">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Risiko Downside</span>
-                  <span class="result-val text-green">~0% (sudah di lantai)</span>
-                </div>
-                <div class="result-row">
-                  <span>Risk/Reward Ratio</span>
-                  <span class="result-val" id="fca-rr">—</span>
-                </div>
-                <div class="verdict-box" id="fca-verdict"></div>
-              </div>
-            </div>
-
-            <div class="action-box buy">
-              <span>🟢 AKSI: CICIL BELI</span> di pasar reguler harga dasar Rp 50–51. Tahan sampai status FCA dicabut.
-            </div>
-            <div class="signal-status" id="s6-status">
-              <span class="dot idle"></span><span>Checklist belum lengkap</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== TIER 4 ===== -->
-      <section class="tier-section" id="tier4">
-        <div class="tier-header">
-          <div class="tier-badge tier4-badge">TIER 4</div>
-          <div>
-            <h2>The Invisible Arbitrage</h2>
-            <p>Celah regulasi dan dark pool forensics · Win rate ~100% · Situasional</p>
-          </div>
-          <div class="tier-alloc">
-            <div class="alloc-bar"><div class="alloc-fill" style="width:10%"></div></div>
-            <span>Situasional</span>
-          </div>
-        </div>
-
-        <!-- Strategy 7: MTO -->
-        <div class="strategy-card" id="s7">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·07</span>
-              <span class="s-tag">MANDATORY TENDER OFFER</span>
-              <span class="s-cycle">30–45 Hari</span>
-            </div>
-            <h3>MTO Spread Arbitrage</h3>
-            <p class="s-desc">Yield instan dari kewajiban regulator. Fixed income berdurasi 30-45 hari. Tidak peduli IHSG hijau atau crash.</p>
-
-            <div class="checklist-group">
-              <h4>📋 Checklist Konfirmasi MTO</h4>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s7-c1" class="chk" />
-                <label for="s7-c1">Pengendali baru sudah akuisisi &gt;50% saham (trigger OJK)</label>
-              </div>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s7-c2" class="chk" />
-                <label for="s7-c2">OJK sudah mewajibkan Mandatory Tender Offer (MTO) resmi</label>
-              </div>
-              <div class="chk-item critical">
-                <input type="checkbox" id="s7-c3" class="chk" />
-                <label for="s7-c3">Harga saham reguler MASIH di bawah harga tender offer</label>
-              </div>
-              <div class="chk-item">
-                <input type="checkbox" id="s7-c4" class="chk" />
-                <label for="s7-c4">Sudah konfirmasi tanggal deadline penyerahan ke BAE</label>
-              </div>
-            </div>
-
-            <div class="calc-block">
-              <h4>🔢 Kalkulator MTO Spread</h4>
-              <div class="calc-grid">
-                <div>
-                  <label class="calc-label">Harga Beli di Pasar Reguler (Rp)</label>
-                  <input class="calc-input" type="number" id="mto-buy" placeholder="Contoh: 2400" />
-                </div>
-                <div>
-                  <label class="calc-label">Harga Tender Offer / MTO (Rp)</label>
-                  <input class="calc-input" type="number" id="mto-offer" placeholder="Contoh: 2500" />
-                </div>
-                <div>
-                  <label class="calc-label">Durasi Tunggu (hari)</label>
-                  <input class="calc-input" type="number" id="mto-days" placeholder="Contoh: 30" />
-                </div>
-              </div>
-              <div class="calc-result" id="mto-result">
-                <div class="result-row">
-                  <span>Spread / Gross Yield</span>
-                  <span class="result-val" id="mto-spread">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Net Yield (setelah fee 0.40%)</span>
-                  <span class="result-val" id="mto-net">—</span>
-                </div>
-                <div class="result-row">
-                  <span>Annualized Return</span>
-                  <span class="result-val" id="mto-annual">—</span>
-                </div>
-                <div class="verdict-box" id="mto-verdict"></div>
-              </div>
-            </div>
-
-            <div class="action-box buy">
-              <span>🟢 AKSI:</span> Beli di pasar reguler → Tahan 1 bulan → Serahkan ke BAE di harga Tender. Margin terkunci.
-            </div>
-            <div class="signal-status" id="s7-status">
-              <span class="dot idle"></span><span>Checklist belum lengkap</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Strategy 8: Dark Pool -->
-        <div class="strategy-card" id="s8">
-          <div class="strategy-signal-bar"></div>
-          <div class="strategy-body">
-            <div class="strategy-meta">
-              <span class="s-num">S·08</span>
-              <span class="s-tag">DARK POOL FORENSICS</span>
-              <span class="s-cycle">Real-time</span>
-            </div>
-            <h3>Sinyal Pasar Negosiasi</h3>
-            <p class="s-desc">Baca niat Smart Money dari Block Trade di balik layar sebelum berita dirilis ke publik.</p>
-
-            <div class="sub-strategy-tabs">
-              <button class="sub-tab active" data-sub="dp-premium">Premium Cross (M&amp;A)</button>
-              <button class="sub-tab" data-sub="dp-discount">Discount Cross (Bailout)</button>
-            </div>
-
-            <div class="sub-content active" id="sub-dp-premium">
-              <div class="checklist-group">
-                <h4>📋 Konfirmasi Premium Cross</h4>
-                <div class="chk-item critical">
-                  <input type="checkbox" id="s8-p1" class="chk" />
-                  <label for="s8-p1">Terjadi crossing triliunan di Pasar Negosiasi</label>
-                </div>
-                <div class="chk-item critical">
-                  <input type="checkbox" id="s8-p2" class="chk" />
-                  <label for="s8-p2">Harga crossing LEBIH TINGGI dari harga pasar reguler (Premium &gt;20%)</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s8-p3" class="chk" />
-                  <label for="s8-p3">Belum ada berita M&A / akuisisi di publik</label>
-                </div>
-              </div>
-              <div class="calc-block">
-                <h4>🔢 Kalkulator Premium Crossing</h4>
-                <div class="calc-grid">
-                  <div>
-                    <label class="calc-label">Harga Reguler (Rp)</label>
-                    <input class="calc-input" type="number" id="dp-reg" placeholder="Contoh: 1000" />
-                  </div>
-                  <div>
-                    <label class="calc-label">Harga Crossing Negosiasi (Rp)</label>
-                    <input class="calc-input" type="number" id="dp-cross" placeholder="Contoh: 1500" />
-                  </div>
-                </div>
-                <div class="calc-result" id="dp-result">
-                  <div class="result-row">
-                    <span>Premium/Discount Crossing</span>
-                    <span class="result-val" id="dp-pct">—</span>
-                  </div>
-                  <div class="verdict-box" id="dp-verdict"></div>
-                </div>
-              </div>
-              <div class="action-box buy">
-                <span>🟢 STRONG BUY di pasar reguler.</span> Harga akan dikerek menyesuaikan valuasi akuisisi.
-              </div>
-            </div>
-
-            <div class="sub-content" id="sub-dp-discount">
-              <div class="checklist-group">
-                <h4>📋 Konfirmasi Discount Cross</h4>
-                <div class="chk-item critical">
-                  <input type="checkbox" id="s8-d1" class="chk" />
-                  <label for="s8-d1">Terjadi crossing jumbo di Pasar Negosiasi</label>
-                </div>
-                <div class="chk-item critical">
-                  <input type="checkbox" id="s8-d2" class="chk" />
-                  <label for="s8-d2">Harga crossing LEBIH RENDAH dari pasar reguler (Diskon &gt;20%)</label>
-                </div>
-                <div class="chk-item">
-                  <input type="checkbox" id="s8-d3" class="chk" />
-                  <label for="s8-d3">Harga reguler terlihat stabil / tidak turun (ilusi menahan margin call)</label>
-                </div>
-              </div>
-              <div class="action-box danger">
-                <span>🔴 AVOID / SHORT.</span> Harga di layar adalah ilusi. Menahan margin call kreditur. Akan segera runtuh.
-              </div>
-            </div>
-
-            <div class="signal-status" id="s8-status">
-              <span class="dot idle"></span><span>Pilih scenario dan lengkapi checklist</span>
-            </div>
-          </div>
-        </div>
-
-      </section>
-    </div>
-  </main>
-
-  <!-- FOOTER DASHBOARD -->
-  <footer class="dashboard-footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <h4>Portfolio Readiness</h4>
-          <div class="readiness-bars">
-            <div class="ready-item">
-              <span>Defense Module</span>
-              <div class="ready-bar"><div class="ready-fill" id="rf-defense"></div></div>
-              <span id="rt-defense">0/3</span>
-            </div>
-            <div class="ready-item">
-              <span>Tier 1 Signals</span>
-              <div class="ready-bar"><div class="ready-fill" id="rf-t1"></div></div>
-              <span id="rt-t1">0/2</span>
-            </div>
-            <div class="ready-item">
-              <span>Tier 2 Signals</span>
-              <div class="ready-bar"><div class="ready-fill" id="rf-t2"></div></div>
-              <span id="rt-t2">0/2</span>
-            </div>
-            <div class="ready-item">
-              <span>Tier 3 & 4</span>
-              <div class="ready-bar"><div class="ready-fill" id="rf-t34"></div></div>
-              <span id="rt-t34">0/4</span>
-            </div>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h4>Quick Reference</h4>
-          <div class="qr-table">
-            <div class="qr-row"><span>Fee Beli</span><span class="qr-val">0.15%</span></div>
-            <div class="qr-row"><span>Fee Jual</span><span class="qr-val">0.25%</span></div>
-            <div class="qr-row"><span>Round-Trip</span><span class="qr-val text-red">0.40%</span></div>
-            <div class="qr-row"><span>Max Slippage</span><span class="qr-val text-red">1.5%</span></div>
-            <div class="qr-row"><span>Min Net Yield</span><span class="qr-val text-green">>3%</span></div>
-            <div class="qr-row"><span>Hurdle Rate</span><span class="qr-val text-gold">>5%</span></div>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h4>Rule Reminder</h4>
-          <div class="reminder-list">
-            <div class="reminder-item">📐 Max 5-10% ADTV per emiten</div>
-            <div class="reminder-item">📏 Resistance gap &gt;5% sebelum entry</div>
-            <div class="reminder-item">🎯 Tier 3&4: hold 3-9 bulan</div>
-            <div class="reminder-item">💀 Waran 1:1 = skip IPO</div>
-            <div class="reminder-item">🐋 Discount crossing = AVOID</div>
-          </div>
+        <div class="chrow">
+          <input type="checkbox" id="d2" class="chk"/>
+          <label for="d2">Jarak ke resistance &gt;5% ✓</label>
         </div>
       </div>
-      <div class="footer-bottom">
-        <p>BEAT IT · IHSG Strategy System · Bukan rekomendasi investasi. Gunakan judgment sendiri.</p>
+    </div>
+
+    <!-- Card 3: Zero Churn -->
+    <div class="dcard" id="dc-zc">
+      <div class="dsigbar" id="dsb-zc"></div>
+      <div class="dcont">
+        <div class="dtop"><span class="dnum mono">03</span><span class="dtag">ZERO-CHURN</span></div>
+        <h3>Sniper Strike Policy</h3>
+        <p>Tier 3 &amp; 4: Setelah akumulasi selesai, tahan 3–9 bulan. Matikan mentalitas scalper.</p>
+        <div class="calcbox">
+          <label class="clabel">Tier yang Digunakan</label>
+          <div class="tiersel">
+            <button class="tbtn" data-tier="1">Tier 1<br/><small>Harian</small></button>
+            <button class="tbtn" data-tier="2">Tier 2<br/><small>Bulanan</small></button>
+            <button class="tbtn active" data-tier="3">Tier 3<br/><small>Kuartalan</small></button>
+            <button class="tbtn" data-tier="4">Tier 4<br/><small>Situasional</small></button>
+          </div>
+          <div class="holdbox"><span>🎯</span><span id="htext">Hold 3–9 bulan. Matikan layar setelah akumulasi selesai.</span></div>
+        </div>
+        <div class="chrow">
+          <input type="checkbox" id="d3" class="chk"/>
+          <label for="d3">Strategi exit sudah ditentukan sebelum entry ✓</label>
+        </div>
       </div>
     </div>
-  </footer>
+  </div>
+</div>
+</section>
 
-  <script src="js/app.js"></script>
+<!-- TIER NAV -->
+<nav class="tiernav">
+<div class="container">
+  <div class="tiernav-inner">
+    <button class="tnbtn active" data-t="t1">⚡ Tier 1 — Tactical</button>
+    <button class="tnbtn" data-t="t2">🚀 Tier 2 — Event</button>
+    <button class="tnbtn" data-t="t3">🐋 Tier 3 — Whales</button>
+    <button class="tnbtn" data-t="t4">🕶️ Tier 4 — Invisible</button>
+  </div>
+</div>
+</nav>
+
+<!-- STRATEGIES -->
+<main class="strategies">
+<div class="container">
+
+<!-- ══════ TIER 1 ══════ -->
+<section class="tsec active" id="t1">
+  <div class="tierhead">
+    <div class="tbadge t1b">TIER 1</div>
+    <div><h2>Tactical Strikes</h2><p>Mesin pencetak kas aktif · 20–30% modal · Idle Cash · Siklus Harian/Mingguan</p></div>
+    <div class="talloc"><div class="abar"><div class="afill" style="width:25%"></div></div><span>20–30% Modal</span></div>
+  </div>
+
+  <!-- S1: Breakout -->
+  <div class="scard" id="s1">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·01</span><span class="stag">HIGH-VOLUME MOMENTUM</span><span class="scycle">Harian</span></div>
+      <h3>Breakout Anomaly</h3>
+      <p class="sdesc">Mengekor institusi yang menyuntikkan likuiditas masif. Entry hanya saat volume breakout ≥300% MA20 dan antrean offer dimakan habis agresif di Running Trade.</p>
+      <div class="chkgroup">
+        <h4>📋 Checklist Eksekusi</h4>
+        <div class="chi"><input type="checkbox" id="s1a" class="chk"/><label for="s1a">Harga menembus level resistensi teknikal yang valid</label></div>
+        <div class="chi"><input type="checkbox" id="s1b" class="chk"/><label for="s1b">Volume hari ini ≥ 300% MA20 Volume</label></div>
+        <div class="chi"><input type="checkbox" id="s1c" class="chk"/><label for="s1c">Antrean Offer (jual) dimakan habis di Running Trade</label></div>
+        <div class="chi"><input type="checkbox" id="s1d" class="chk"/><label for="s1d">Sudah cek ADTV (Rule 01) &amp; Hurdle Rate (Rule 02)</label></div>
+      </div>
+      <div class="calcblk">
+        <h4>🔢 Kalkulator Volume Anomaly</h4>
+        <div class="cgrid">
+          <div><label class="clabel">MA20 Volume (lot)</label><input class="cinput" type="number" id="s1ma" placeholder="50000"/></div>
+          <div><label class="clabel">Volume Hari Ini (lot)</label><input class="cinput" type="number" id="s1vol" placeholder="180000"/></div>
+        </div>
+        <div class="cresult">
+          <div class="rrow"><span>Volume Multiplier</span><span class="rval" id="s1mul">—</span></div>
+          <div class="rrow"><span>Threshold 300% MA20</span><span class="rval" id="s1thr">—</span></div>
+          <div class="vbox" id="s1v"></div>
+        </div>
+      </div>
+      <div class="exitbox"><span class="exitlbl">🚨 EXIT SIGNAL</span><p>Jual seketika saat harga masih naik TAPI: (1) Volume mulai menyusut, atau (2) Antrean Bid mulai gembos → Bull Trap / Exhaustion.</p></div>
+      <div class="sigstat" id="ss1"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+
+  <!-- S2: ARA/ARB -->
+  <div class="scard" id="s2">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·02</span><span class="stag">MICROSTRUCTURE ANOMALY</span><span class="scycle">Harian</span></div>
+      <h3>ARA Gap-Up &amp; ARB Capitulation Sweep</h3>
+      <p class="sdesc">Eksploitasi mekanisme Auto Reject Bursa. ARA: tangkap momentum euforia. ARB: tangkap kapitulasi ritel oleh Paus.</p>
+      <div class="stabs">
+        <button class="stab active" data-sub="ara">🟢 ARA Gap-Up Play</button>
+        <button class="stab" data-sub="arb">🔴 ARB Capitulation Sweep</button>
+      </div>
+      <div class="subcont active" id="sub-ara">
+        <div class="chkgroup">
+          <h4>📋 Checklist ARA Play</h4>
+          <div class="chi"><input type="checkbox" id="s2a1" class="chk"/><label for="s2a1">Saham mengunci ARA dalam 30 menit pertama Sesi 1</label></div>
+          <div class="chi"><input type="checkbox" id="s2a2" class="chk"/><label for="s2a2">Antrean Bid sangat tebal dan tidak tergoyahkan</label></div>
+          <div class="chi"><input type="checkbox" id="s2a3" class="chk"/><label for="s2a3">Tidak ada aksi jual masif di Running Trade</label></div>
+        </div>
+        <div class="abox buy"><span>🟢 AKSI: BELI &amp; HOLD.</span> Jual esok pagi saat harga Gap-Up terbawa sisa euforia.</div>
+      </div>
+      <div class="subcont" id="sub-arb">
+        <div class="chkgroup">
+          <h4>📋 Checklist ARB Sweep</h4>
+          <div class="chi"><input type="checkbox" id="s2b1" class="chk"/><label for="s2b1">Saham terkunci ARB selama 3–5 hari berturut-turut</label></div>
+          <div class="chi"><input type="checkbox" id="s2b2" class="chk"/><label for="s2b2">Baru masuk di Hari ke-3 atau ke-4 (abaikan hari 1 &amp; 2)</label></div>
+          <div class="chi"><input type="checkbox" id="s2b3" class="chk"/><label for="s2b3">Ledakan volume serapan ≥ 300% MA20 terjadi di hari ARB</label></div>
+          <div class="chi"><input type="checkbox" id="s2b4" class="chk"/><label for="s2b4">Harga masih di level ARB (Paus sedang menadah ritel)</label></div>
+        </div>
+        <div class="arbtrack">
+          <div class="arbday">Hari 1<br/><small>SKIP</small></div>
+          <div class="arbday">Hari 2<br/><small>SKIP</small></div>
+          <div class="arbday aday">Hari 3<br/><small>MASUK ✓</small></div>
+          <div class="arbday aday">Hari 4<br/><small>OPTIMAL ✓</small></div>
+          <div class="arbday dday">Hari 5<br/><small>HATI-HATI</small></div>
+        </div>
+        <div class="abox buy"><span>🟢 AKSI: BELI DI HARGA ARB.</span> Sinyal absolut Paus sedang akumulasi dari ritel yang cut loss massal.</div>
+      </div>
+      <div class="sigstat" id="ss2"><span class="dot idle"></span><span>Pilih scenario ARA atau ARB, lalu centang checklist</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ TIER 2 ══════ -->
+<section class="tsec" id="t2">
+  <div class="tierhead">
+    <div class="tbadge t2b">TIER 2</div>
+    <div><h2>Event-Driven &amp; IPO Arbitrage</h2><p>Profit asimetris berbasis aksi korporasi · Siklus Bulanan</p></div>
+    <div class="talloc"><div class="abar"><div class="afill" style="width:20%"></div></div><span>Idle Cash Only</span></div>
+  </div>
+
+  <!-- S3: E-IPO -->
+  <div class="scard" id="s3">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·03</span><span class="stag">IPO ARBITRAGE</span><span class="scycle">Per IPO Event</span></div>
+      <h3>E-IPO Squeeze</h3>
+      <p class="sdesc">Hukum 90/10: 90% sentimen likuiditas, 10% fundamental. Filter prospektus ketat — satu FAIL = SKIP total IPO ini.</p>
+      <div class="chkgroup">
+        <h4>📋 Filter Prospektus (BINER — Satu FAIL = SKIP)</h4>
+        <div class="chi"><input type="checkbox" id="s3a" class="chk"/><label for="s3a">✅ Penggunaan dana: &gt;80% untuk CAPEX (Ekspansi)</label></div>
+        <div class="chi"><input type="checkbox" id="s3b" class="chk"/><label for="s3b">✅ Struktur emisi: 100% Saham Murni — TIDAK ADA WARAN</label></div>
+        <div class="chi"><input type="checkbox" id="s3c" class="chk"/><label for="s3c">✅ Ada Lock-Up Period ketat ≥8 bulan untuk Founder</label></div>
+        <div class="chi"><input type="checkbox" id="s3d" class="chk"/><label for="s3d">✅ Solo Lead Underwriter Tier-1 dengan 100% Winning Rate</label></div>
+      </div>
+      <div class="warnbox" id="waran-warn" style="display:none">⛔ WARAN TERDETEKSI = RED FLAG MUTLAK. Waran 1:1 adalah sinyal dumping saham induk. SKIP IPO INI SEKARANG.</div>
+      <div class="calcblk">
+        <h4>🔢 Kalkulator Penjatahan H-2</h4>
+        <div class="cgrid">
+          <div><label class="clabel">Lot Didaftarkan</label><input class="cinput" type="number" id="ipolot" placeholder="1000"/></div>
+          <div><label class="clabel">Lot Diterima</label><input class="cinput" type="number" id="ipoalc" placeholder="20"/></div>
+        </div>
+        <div class="cresult">
+          <div class="rrow"><span>Persentase Alokasi</span><span class="rval" id="ipopct">—</span></div>
+          <div class="vbox" id="ipov"></div>
+        </div>
+      </div>
+      <div class="chkgroup" style="margin-top:16px">
+        <h4>📋 Taktik Sybil Execution</h4>
+        <div class="chi"><input type="checkbox" id="s3e" class="chk"/><label for="s3e">Modal dipecah ke banyak akun/SID (Sybil Execution)</label></div>
+        <div class="chi"><input type="checkbox" id="s3f" class="chk"/><label for="s3f">Maksimal Rp 99 Juta per akun (masuk kelompok tier bawah)</label></div>
+        <div class="chi"><input type="checkbox" id="s3g" class="chk"/><label for="s3g">Hanya menggunakan Idle Cash — bukan modal inti</label></div>
+        <div class="chi"><input type="checkbox" id="s3h" class="chk"/><label for="s3h">Target exit: jual bertahap, maksimal tahan hingga Hari ke-7</label></div>
+      </div>
+      <div class="sigstat" id="ss3"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+
+  <!-- S4: Dividend Trap -->
+  <div class="scard" id="s4">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·04</span><span class="stag">DIVIDEND TRAP</span><span class="scycle">2–3 Bulan Pre-RUPS</span></div>
+      <h3>Front-Running the Yield</h3>
+      <p class="sdesc">Jadikan ritel pemburu dividen sebagai Exit Liquidity. Capital Gain sebelum Ex-Date selalu lebih aman daripada menunggu dividen itu sendiri.</p>
+      <div class="chkgroup">
+        <h4>📋 Checklist Entry</h4>
+        <div class="chi"><input type="checkbox" id="s4a" class="chk"/><label for="s4a">Emiten adalah proksi dividen besar (Batu Bara / Big Banks)</label></div>
+        <div class="chi"><input type="checkbox" id="s4b" class="chk"/><label for="s4b">Masih 2–3 bulan sebelum tanggal RUPS pembagian dividen</label></div>
+        <div class="chi"><input type="checkbox" id="s4c" class="chk"/><label for="s4c">Expected yield ≥15% agar ritel FOMO cukup kuat sebagai exit liquidity</label></div>
+      </div>
+      <div class="calcblk">
+        <h4>🔢 Kalkulator Dividend Trap</h4>
+        <div class="cgrid">
+          <div><label class="clabel">Harga Beli (Rp)</label><input class="cinput" type="number" id="dvbuy" placeholder="3000"/></div>
+          <div><label class="clabel">Target Jual Cum-Date (Rp)</label><input class="cinput" type="number" id="dvsell" placeholder="3800"/></div>
+          <div><label class="clabel">Dividen per Saham (Rp)</label><input class="cinput" type="number" id="dvamt" placeholder="500"/></div>
+        </div>
+        <div class="cresult">
+          <div class="rrow"><span>Capital Gain (jual sebelum Ex-Date)</span><span class="rval" id="dvgain">—</span></div>
+          <div class="rrow"><span>Yield Dividen Bruto</span><span class="rval" id="dvyield">—</span></div>
+          <div class="rrow"><span>Dividen Net (pajak 10%)</span><span class="rval" id="dvnet">—</span></div>
+          <div class="vbox" id="dvv"></div>
+        </div>
+      </div>
+      <div class="exitbox"><span class="exitlbl">🚨 EXIT SIGNAL</span><p>Saat Cum-Date tiba dan ritel FOMO mengejar yield 15–20% → JUAL 100%. Amankan capital gain, hindari pajak dividen &amp; jebakan ARB di Ex-Date.</p></div>
+      <div class="sigstat" id="ss4"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ TIER 3 ══════ -->
+<section class="tsec" id="t3">
+  <div class="tierhead">
+    <div class="tbadge t3b">TIER 3</div>
+    <div><h2>The Whales Game</h2><p>Alokasi modal berat 70–80% · Zero-churn, low stress · Siklus Kuartalan</p></div>
+    <div class="talloc"><div class="abar"><div class="afill" style="width:75%"></div></div><span>70–80% Modal</span></div>
+  </div>
+
+  <!-- S5: Rights Issue -->
+  <div class="scard" id="s5">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·05</span><span class="stag">JUMBO RIGHTS ISSUE</span><span class="scycle">Kuartalan</span></div>
+      <h3>Control Premium Squeeze</h3>
+      <p class="sdesc">Eksploitasi skema pengenceran Konglomerat. Breakeven selalu asimetris karena cost basis Konglo jauh lebih rendah. Ada dua skenario berbeda.</p>
+      <div class="stabs">
+        <button class="stab active" data-sub="rit">🔴 Skenario A: THE THREAT</button>
+        <button class="stab" data-sub="rio">🟢 Skenario B: THE OPPORTUNITY</button>
+      </div>
+      <div class="subcont active" id="sub-rit">
+        <div class="abox danger"><span>🔴 KONDISI:</span> Sudah punya saham di harga ATAS sebelum RI diskon diumumkan.</div>
+        <div class="chkgroup">
+          <h4>📋 Konfirmasi Ancaman</h4>
+          <div class="chi"><input type="checkbox" id="s5t1" class="chk"/><label for="s5t1">Rights Issue diumumkan dengan diskon ekstrem (&gt;30% dari harga pasar)</label></div>
+          <div class="chi"><input type="checkbox" id="s5t2" class="chk"/><label for="s5t2">Harga beli saya sudah di atas harga tebus RI</label></div>
+        </div>
+        <div class="abox danger"><span>🔴 AKSI WAJIB: LIQUIDATE &amp; ABORT.</span> Cut loss seketika. Jangan adu modal tunai dengan Konglomerat untuk average down.</div>
+      </div>
+      <div class="subcont" id="sub-rio">
+        <div class="abox buy"><span>🟢 KONDISI:</span> 100% Cash di luar dan Konglo bertindak sebagai PEMBELI SIAGA (Standby Buyer).</div>
+        <div class="chkgroup">
+          <h4>📋 Konfirmasi Peluang</h4>
+          <div class="chi"><input type="checkbox" id="s5o1" class="chk"/><label for="s5o1">Prospektus menyatakan Konglo sebagai STANDBY BUYER</label></div>
+          <div class="chi"><input type="checkbox" id="s5o2" class="chk"/><label for="s5o2">Saya 100% Cash — tidak memegang saham ini sebelumnya</label></div>
+          <div class="chi"><input type="checkbox" id="s5o3" class="chk"/><label for="s5o3">Harga sudah bottoming di sekitar harga tebus Konglo</label></div>
+          <div class="chi"><input type="checkbox" id="s5o4" class="chk"/><label for="s5o4">Ritel sudah panik terdilusi (sinyal kapitulasi terlihat jelas)</label></div>
+        </div>
+        <div class="calcblk">
+          <h4>🔢 Kalkulator Dilusi Rights Issue</h4>
+          <div class="cgrid">
+            <div><label class="clabel">Saham Lama (juta)</label><input class="cinput" type="number" id="riold" placeholder="1000"/></div>
+            <div><label class="clabel">Saham Baru Rasio RI</label><input class="cinput" type="number" id="rinew" placeholder="3000"/></div>
+          </div>
+          <div class="cresult">
+            <div class="rrow"><span>Kepemilikan Publik Setelah RI</span><span class="rval" id="riown">—</span></div>
+            <div class="rrow"><span>Dilusi Kepemilikan</span><span class="rval" id="ridil">—</span></div>
+            <div class="vbox" id="riv"></div>
+          </div>
+        </div>
+        <div class="abox buy"><span>🟢 AKSI: WAIT &amp; STRIKE.</span> Masuk size besar setelah bottoming. Kamu menunggangi kapal tepat saat Konglo memperkuat kekuasaannya.</div>
+      </div>
+      <div class="sigstat" id="ss5"><span class="dot idle"></span><span>Pilih skenario dan lengkapi checklist</span></div>
+    </div>
+  </div>
+
+  <!-- S6: FCA -->
+  <div class="scard" id="s6">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·06</span><span class="stag">FCA SLEEPING DRAGON</span><span class="scycle">Situasional</span></div>
+      <h3>Arbitrase Papan Rp 50</h3>
+      <p class="sdesc">Downside ~0%, upside asimetris ratusan persen. Cari saham ekosistem Konglomerat yang sengaja ditidurkan di FCA dan pantau volume Pasar Negosiasi.</p>
+      <div class="chkgroup">
+        <h4>📋 Checklist Filter</h4>
+        <div class="chi"><input type="checkbox" id="s6a" class="chk"/><label for="s6a">Saham berada di Papan Pemantauan Khusus (FCA) / harga Rp 50</label></div>
+        <div class="chi"><input type="checkbox" id="s6b" class="chk"/><label for="s6b">Bagian dari ekosistem Konglomerat besar / fundamental underlying bagus</label></div>
+        <div class="chi"><input type="checkbox" id="s6c" class="chk"/><label for="s6c">TRIGGER: Tiba-tiba mencetak volume triliunan di Pasar Negosiasi</label></div>
+        <div class="chi"><input type="checkbox" id="s6d" class="chk"/><label for="s6d">Ada katalis potensial (restrukturisasi / rights issue / perubahan pengendali)</label></div>
+      </div>
+      <div class="calcblk">
+        <h4>🔢 Kalkulator Asimetri Risk/Reward</h4>
+        <div class="cgrid">
+          <div><label class="clabel">Harga Beli (Rp, ~50–51)</label><input class="cinput" type="number" id="fcabuy" placeholder="50"/></div>
+          <div><label class="clabel">Target Pasca FCA Dicabut (Rp)</label><input class="cinput" type="number" id="fcatgt" placeholder="300"/></div>
+        </div>
+        <div class="cresult">
+          <div class="rrow"><span>Potensi Upside</span><span class="rval" id="fcaup">—</span></div>
+          <div class="rrow"><span>Risiko Downside</span><span class="rval tg">~0% (sudah di lantai)</span></div>
+          <div class="rrow"><span>Risk/Reward Ratio</span><span class="rval" id="fcarr">—</span></div>
+          <div class="vbox" id="fcav"></div>
+        </div>
+      </div>
+      <div class="abox buy"><span>🟢 AKSI: CICIL BELI</span> di pasar reguler harga dasar Rp 50–51. Tahan sampai status FCA dicabut regulator.</div>
+      <div class="sigstat" id="ss6"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ TIER 4 ══════ -->
+<section class="tsec" id="t4">
+  <div class="tierhead">
+    <div class="tbadge t4b">TIER 4</div>
+    <div><h2>The Invisible Arbitrage</h2><p>Celah regulasi &amp; dark pool forensics · Win rate ~100% · Situasional</p></div>
+    <div class="talloc"><div class="abar"><div class="afill" style="width:10%"></div></div><span>Situasional</span></div>
+  </div>
+
+  <!-- S7: MTO -->
+  <div class="scard" id="s7">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·07</span><span class="stag">MANDATORY TENDER OFFER</span><span class="scycle">30–45 Hari</span></div>
+      <h3>MTO Spread Arbitrage</h3>
+      <p class="sdesc">Yield instan dari kewajiban regulator OJK. Fixed income berdurasi 30-45 hari. Tidak peduli IHSG hijau atau crash — margin terkunci.</p>
+      <div class="chkgroup">
+        <h4>📋 Checklist Konfirmasi MTO</h4>
+        <div class="chi"><input type="checkbox" id="s7a" class="chk"/><label for="s7a">Pengendali baru sudah akuisisi &gt;50% saham (trigger OJK)</label></div>
+        <div class="chi"><input type="checkbox" id="s7b" class="chk"/><label for="s7b">OJK sudah mewajibkan Mandatory Tender Offer (MTO) secara resmi</label></div>
+        <div class="chi"><input type="checkbox" id="s7c" class="chk"/><label for="s7c">Harga saham reguler MASIH di bawah harga tender offer</label></div>
+        <div class="chi"><input type="checkbox" id="s7d" class="chk"/><label for="s7d">Sudah konfirmasi tanggal deadline penyerahan ke BAE</label></div>
+      </div>
+      <div class="calcblk">
+        <h4>🔢 Kalkulator MTO Spread</h4>
+        <div class="cgrid">
+          <div><label class="clabel">Harga Beli Reguler (Rp)</label><input class="cinput" type="number" id="mtobuy" placeholder="2400"/></div>
+          <div><label class="clabel">Harga Tender Offer (Rp)</label><input class="cinput" type="number" id="mtooffer" placeholder="2500"/></div>
+          <div><label class="clabel">Durasi Tunggu (hari)</label><input class="cinput" type="number" id="mtodays" placeholder="30"/></div>
+        </div>
+        <div class="cresult">
+          <div class="rrow"><span>Gross Spread</span><span class="rval" id="mtospread">—</span></div>
+          <div class="rrow"><span>Net Yield (setelah fee 0.40%)</span><span class="rval" id="mtonet">—</span></div>
+          <div class="rrow"><span>Annualized Return</span><span class="rval" id="mtoann">—</span></div>
+          <div class="vbox" id="mtov"></div>
+        </div>
+      </div>
+      <div class="abox buy"><span>🟢 AKSI:</span> Beli reguler → Tahan 30-45 hari → Serahkan ke BAE di harga Tender. Margin terkunci oleh regulasi OJK.</div>
+      <div class="sigstat" id="ss7"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+
+  <!-- S8: Dark Pool -->
+  <div class="scard" id="s8">
+    <div class="ssigbar"></div>
+    <div class="sbody">
+      <div class="smeta"><span class="snum mono">S·08</span><span class="stag">DARK POOL FORENSICS</span><span class="scycle">Real-time</span></div>
+      <h3>Sinyal Pasar Negosiasi</h3>
+      <p class="sdesc">Lacak Block Trade di balik layar untuk membaca niat asli Smart Money sebelum berita dirilis ke publik. Premium = M&amp;A, Diskon = Bailout.</p>
+      <div class="stabs">
+        <button class="stab active" data-sub="dpp">🟢 Premium Cross (M&amp;A)</button>
+        <button class="stab" data-sub="dpd">🔴 Discount Cross (Bailout)</button>
+      </div>
+      <div class="subcont active" id="sub-dpp">
+        <div class="chkgroup">
+          <h4>📋 Konfirmasi Premium Cross</h4>
+          <div class="chi"><input type="checkbox" id="s8p1" class="chk"/><label for="s8p1">Terjadi crossing triliunan di Pasar Negosiasi</label></div>
+          <div class="chi"><input type="checkbox" id="s8p2" class="chk"/><label for="s8p2">Harga crossing LEBIH TINGGI dari harga reguler (Premium &gt;20%)</label></div>
+          <div class="chi"><input type="checkbox" id="s8p3" class="chk"/><label for="s8p3">Belum ada berita M&amp;A / akuisisi yang dirilis ke publik</label></div>
+        </div>
+        <div class="calcblk">
+          <h4>🔢 Kalkulator Crossing Premium/Diskon</h4>
+          <div class="cgrid">
+            <div><label class="clabel">Harga Reguler (Rp)</label><input class="cinput" type="number" id="dpreg" placeholder="1000"/></div>
+            <div><label class="clabel">Harga Crossing Nego (Rp)</label><input class="cinput" type="number" id="dpcross" placeholder="1500"/></div>
+          </div>
+          <div class="cresult">
+            <div class="rrow"><span>Premium / Diskon Crossing</span><span class="rval" id="dppct">—</span></div>
+            <div class="vbox" id="dpv"></div>
+          </div>
+        </div>
+        <div class="abox buy"><span>🟢 STRONG BUY di pasar reguler.</span> Harga akan dikerek menyesuaikan valuasi akuisisi tersebut.</div>
+      </div>
+      <div class="subcont" id="sub-dpd">
+        <div class="chkgroup">
+          <h4>📋 Konfirmasi Discount Cross</h4>
+          <div class="chi"><input type="checkbox" id="s8d1" class="chk"/><label for="s8d1">Terjadi crossing jumbo di Pasar Negosiasi</label></div>
+          <div class="chi"><input type="checkbox" id="s8d2" class="chk"/><label for="s8d2">Harga crossing LEBIH RENDAH dari harga reguler (Diskon &gt;20%)</label></div>
+          <div class="chi"><input type="checkbox" id="s8d3" class="chk"/><label for="s8d3">Harga reguler terlihat stabil (ilusi untuk menahan margin call kreditur)</label></div>
+        </div>
+        <div class="abox danger"><span>🔴 AVOID / SHORT.</span> Harga di layar adalah ilusi untuk menahan margin call. Akan segera runtuh — hindari atau posisi short.</div>
+      </div>
+      <div class="sigstat" id="ss8"><span class="dot idle"></span><span>Pilih scenario dan lengkapi checklist</span></div>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="container">
+  <div class="fgrid">
+    <div class="fcol">
+      <h4>Portfolio Readiness</h4>
+      <div class="rbars">
+        <div class="ritem"><span>Defense</span><div class="rbar"><div class="rfill" id="rf-def"></div></div><span id="rt-def">0/3</span></div>
+        <div class="ritem"><span>Tier 1</span><div class="rbar"><div class="rfill" id="rf-t1"></div></div><span id="rt-t1">0/8</span></div>
+        <div class="ritem"><span>Tier 2</span><div class="rbar"><div class="rfill" id="rf-t2"></div></div><span id="rt-t2">0/11</span></div>
+        <div class="ritem"><span>Tier 3 &amp; 4</span><div class="rbar"><div class="rfill" id="rf-t34"></div></div><span id="rt-t34">0/14</span></div>
+      </div>
+    </div>
+    <div class="fcol">
+      <h4>Quick Reference</h4>
+      <div class="qrtable">
+        <div class="qrrow"><span>Fee Beli</span><span class="qrval">0.15%</span></div>
+        <div class="qrrow"><span>Fee Jual</span><span class="qrval">0.25%</span></div>
+        <div class="qrrow"><span>Round-Trip</span><span class="qrval tr">0.40%</span></div>
+        <div class="qrrow"><span>Max Slippage</span><span class="qrval tr">1.5%</span></div>
+        <div class="qrrow"><span>Min Net Yield</span><span class="qrval tg">&gt;3%</span></div>
+        <div class="qrrow"><span>Hurdle Rate</span><span class="qrval ty">&gt;5%</span></div>
+        <div class="qrrow"><span>Max ADTV</span><span class="qrval">10%</span></div>
+      </div>
+    </div>
+    <div class="fcol">
+      <h4>Rule Reminder</h4>
+      <div class="remlist">
+        <div class="remitem">📐 Max 5–10% ADTV per emiten</div>
+        <div class="remitem">📏 Resistance gap &gt;5% sebelum entry</div>
+        <div class="remitem">🎯 Tier 3 &amp; 4: hold 3–9 bulan</div>
+        <div class="remitem">💀 Waran 1:1 = skip IPO sepenuhnya</div>
+        <div class="remitem">🐋 Discount crossing = AVOID / SHORT</div>
+        <div class="remitem">🔒 MTO Spread = risk-free arbitrase</div>
+      </div>
+    </div>
+  </div>
+  <div class="fbot">
+    <p>BEAT IT · IHSG Strategy Execution System · Bukan rekomendasi investasi · Gunakan judgment sendiri</p>
+  </div>
+</div>
+</footer>
+
+<script>
+// ── Hold advice ──
+const HA={
+  '1':{i:'⚡',t:'Hold harian hingga mingguan. Aktif monitor dan exit agresif saat sinyal exhaustion.'},
+  '2':{i:'📅',t:'Hold per event (IPO max Hari 7, Dividen sampai Cum-Date). Jangan nikahi aset.'},
+  '3':{i:'🎯',t:'Hold 3–9 bulan. Matikan layar setelah akumulasi. Zero-churn adalah aturan mutlak.'},
+  '4':{i:'🔒',t:'Hold 30–45 hari (MTO) atau sampai berita M&A publik. Win rate ~100% jika dieksekusi tepat.'}
+};
+document.querySelectorAll('.tbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const h=HA[b.dataset.tier];
+    document.getElementById('htext').textContent=h.t;
+  });
+});
+
+// ── Tier nav ──
+document.querySelectorAll('.tnbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tnbtn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tsec').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const s=document.getElementById(b.dataset.t);
+    if(s){s.classList.add('active');s.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+
+// ── Sub tabs ──
+document.querySelectorAll('.stabs').forEach(tg=>{
+  tg.querySelectorAll('.stab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      const body=t.closest('.sbody');
+      tg.querySelectorAll('.stab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      body.querySelectorAll('.subcont').forEach(x=>x.classList.remove('active'));
+      const el=document.getElementById('sub-'+t.dataset.sub);
+      if(el)el.classList.add('active');
+    });
+  });
+});
+
+// ── Format helpers ──
+const pct=v=>v.toFixed(2)+'%';
+const rp=v=>'Rp '+v.toLocaleString('id-ID');
+function sv(id,type,msg){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.className='vbox '+type;
+  el.textContent=msg;
+}
+function setVal(id,text,cls=''){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=text;
+  el.className='rval '+cls;
+}
+
+// ── Defense calcs ──
+document.getElementById('adtv').addEventListener('input',function(){
+  const v=parseFloat(this.value);
+  if(!v||v<=0){setVal('cap-lo','—');setVal('cap-hi','—');return;}
+  setVal('cap-lo','Rp '+(v*.05).toFixed(1)+' M','tg');
+  setVal('cap-hi','Rp '+(v*.10).toFixed(1)+' M','ty');
+});
+
+function calcHrd(){
+  const e=parseFloat(document.getElementById('ep').value);
+  const r=parseFloat(document.getElementById('rp').value);
+  if(!e||!r||e<=0||r<=e)return;
+  const gap=((r-e)/e)*100, fee=gap-.4, slip=fee-1.5;
+  setVal('hrd-gap',pct(gap),gap>=5?'tg':'tr');
+  setVal('hrd-fee',pct(fee),fee>=4?'tg':'tr');
+  setVal('hrd-slip',pct(slip),slip>=3?'tg':'tr');
+  if(slip>=3&&gap>=5)sv('hrd-v','go','✅ LAYAK ENTRY — Net yield memenuhi batas minimum >3%');
+  else if(slip>=0)sv('hrd-v','warn','⚠️ MARGIN TIPIS — Net yield <3%. Pertimbangkan ulang.');
+  else sv('hrd-v','nogo','🚫 NO ENTRY — Setelah fee + slippage RUGI. Skip!');
+}
+document.getElementById('ep').addEventListener('input',calcHrd);
+document.getElementById('rp').addEventListener('input',calcHrd);
+
+// ── S1: Volume ──
+function calcS1(){
+  const ma=parseFloat(document.getElementById('s1ma').value);
+  const v=parseFloat(document.getElementById('s1vol').value);
+  if(!ma||!v||ma<=0)return;
+  const mul=v/ma;
+  setVal('s1mul',mul.toFixed(1)+'x MA20',mul>=3?'tg':'tr');
+  setVal('s1thr',(ma*3).toLocaleString('id-ID')+' lot (min)','ty');
+  if(mul>=3)sv('s1v','go','✅ BREAKOUT VALID — Volume ≥300% MA20. Anomaly terkonfirmasi!');
+  else if(mul>=2)sv('s1v','warn','⚠️ VOLUME LEMAH — '+mul.toFixed(1)+'x MA20. Belum 300% threshold.');
+  else sv('s1v','nogo','🚫 VOLUME RENDAH — '+mul.toFixed(1)+'x MA20. Tidak ada sinyal institusi.');
+}
+document.getElementById('s1ma').addEventListener('input',calcS1);
+document.getElementById('s1vol').addEventListener('input',calcS1);
+
+// ── S3: IPO ──
+const s3b=document.getElementById('s3b');
+s3b.addEventListener('change',()=>{
+  document.getElementById('waran-warn').style.display=s3b.checked?'none':'block';
+});
+function calcIPO(){
+  const lot=parseFloat(document.getElementById('ipolot').value);
+  const alc=parseFloat(document.getElementById('ipoalc').value);
+  if(!lot||!alc||lot<=0)return;
+  const p=(alc/lot)*100;
+  setVal('ipopct',pct(p),p<2?'tg':p>30?'tr':'ty');
+  if(p<2)sv('ipov','go','🟢 SQUEEZE! Alokasi <2% = OVERSUBSCRIBED EKSTREM. Suplai sangat langka. HOLD!');
+  else if(p<=30)sv('ipov','warn','⚠️ NORMAL — Alokasi '+pct(p)+'. Monitor day-1 action sebelum keputusan.');
+  else sv('ipov','nogo','🔴 TOXIC! Alokasi >30% = Ritel terjebak. CUT LOSS di hari pertama!');
+}
+document.getElementById('ipolot').addEventListener('input',calcIPO);
+document.getElementById('ipoalc').addEventListener('input',calcIPO);
+
+// ── S4: Dividend ──
+function calcDiv(){
+  const buy=parseFloat(document.getElementById('dvbuy').value);
+  const sell=parseFloat(document.getElementById('dvsell').value);
+  const div=parseFloat(document.getElementById('dvamt').value);
+  if(!buy||buy<=0)return;
+  if(sell&&sell>buy){const g=((sell-buy)/buy)*100;setVal('dvgain','+'+pct(g)+' ('+rp(sell-buy)+'/saham)','tg');}
+  if(div){
+    const gy=(div/buy)*100, ny=(div*.9/buy)*100;
+    setVal('dvyield',pct(gy),'ty');
+    setVal('dvnet',pct(ny)+' (pajak='+rp(div*.1)+'/saham)','');
+    if(sell&&sell>buy){
+      const g=((sell-buy)/buy)*100;
+      if(g>ny)sv('dvv','go','✅ CAPITAL GAIN ('+pct(g)+') > DIVIDEN NET ('+pct(ny)+'). Exit sebelum Ex-Date lebih optimal!');
+      else sv('dvv','warn','⚠️ Dividen net lebih tinggi dari capital gain. Pertimbangkan risiko ARB Ex-Date.');
+    }
+  }
+}
+document.getElementById('dvbuy').addEventListener('input',calcDiv);
+document.getElementById('dvsell').addEventListener('input',calcDiv);
+document.getElementById('dvamt').addEventListener('input',calcDiv);
+
+// ── S5: RI ──
+function calcRI(){
+  const o=parseFloat(document.getElementById('riold').value);
+  const n=parseFloat(document.getElementById('rinew').value);
+  if(!o||!n||o<=0)return;
+  const own=(o/(o+n))*100,dil=100-own,ratio=n/o;
+  setVal('riown',pct(own)+' dari total saham','tr');
+  setVal('ridil','-'+pct(dil)+' dari posisi awal','tr');
+  if(ratio>=3)sv('riv','nogo','🔴 DILUSI EKSTREM! Rasio 1:'+ratio.toFixed(0)+'. Kepemilikan publik tersisa '+pct(own)+'. Konglo merebut kendali.');
+  else if(ratio>=1)sv('riv','warn','⚠️ DILUSI SIGNIFIKAN. Rasio 1:'+ratio.toFixed(1)+'. Monitor apakah Konglo standby buyer.');
+  else sv('riv','warn','⚠️ Dilusi ringan. Cek kembali prospektus.');
+}
+document.getElementById('riold').addEventListener('input',calcRI);
+document.getElementById('rinew').addEventListener('input',calcRI);
+
+// ── S6: FCA ──
+function calcFCA(){
+  const b=parseFloat(document.getElementById('fcabuy').value);
+  const t=parseFloat(document.getElementById('fcatgt').value);
+  if(!b||!t||b<=0||t<=b)return;
+  const up=((t-b)/b)*100,rr=up/5;
+  setVal('fcaup','+'+up.toFixed(0)+'%','tg');
+  setVal('fcarr',rr.toFixed(0)+':1','ty');
+  if(up>=200)sv('fcav','go','🟢 ASIMETRI LUAR BIASA! +'+up.toFixed(0)+'% potensi dengan downside ~0%. Setup Sleeping Dragon ideal.');
+  else if(up>=50)sv('fcav','go','✅ Setup asimetris bagus. Upside '+up.toFixed(0)+'% saat FCA dicabut.');
+  else sv('fcav','warn','⚠️ Upside hanya '+up.toFixed(0)+'%. Tetap asimetris tapi periksa katalis realistis.');
+}
+document.getElementById('fcabuy').addEventListener('input',calcFCA);
+document.getElementById('fcatgt').addEventListener('input',calcFCA);
+
+// ── S7: MTO ──
+function calcMTO(){
+  const b=parseFloat(document.getElementById('mtobuy').value);
+  const o=parseFloat(document.getElementById('mtooffer').value);
+  const d=parseFloat(document.getElementById('mtodays').value);
+  if(!b||!o||b<=0||o<=b)return;
+  const spread=((o-b)/b)*100, net=spread-.4, ann=d>0?(net/d)*365:0;
+  setVal('mtospread','+'+pct(spread)+' ('+rp(o-b)+'/saham)','tg');
+  setVal('mtonet','+'+pct(net),net>0?'tg':'tr');
+  if(d>0)setVal('mtoann','+'+pct(ann)+'/tahun','ty');
+  if(net>=3)sv('mtov','go','🔒 ARBITRASE TERKUNCI! Net yield '+pct(net)+' dalam '+d+' hari. Risk-free (MTO wajib OJK).');
+  else if(net>0)sv('mtov','warn','⚠️ Yield kecil ('+pct(net)+'). Tetap risk-free tapi modal bisa lebih baik di tempat lain.');
+  else sv('mtov','nogo','🚫 RUGI setelah fee. Spread tidak cukup. Skip!');
+}
+document.getElementById('mtobuy').addEventListener('input',calcMTO);
+document.getElementById('mtooffer').addEventListener('input',calcMTO);
+document.getElementById('mtodays').addEventListener('input',calcMTO);
+
+// ── S8: Dark Pool ──
+function calcDP(){
+  const r=parseFloat(document.getElementById('dpreg').value);
+  const c=parseFloat(document.getElementById('dpcross').value);
+  if(!r||!c||r<=0)return;
+  const p=((c-r)/r)*100;
+  if(p>0){
+    setVal('dppct','+'+pct(p)+' PREMIUM','tg');
+    if(p>=20)sv('dpv','go','🟢 STRONG BUY! Premium '+pct(p)+' di Negosiasi = sinyal M&A / akuisisi strategis!');
+    else sv('dpv','warn','⚠️ Premium kecil ('+pct(p)+'). Bisa noise. Perlu konfirmasi lanjutan.');
+  }else{
+    setVal('dppct',pct(p)+' DISKON','tr');
+    if(p<=-20)sv('dpv','nogo','🔴 DANGER! Diskon '+pct(Math.abs(p))+'= Bailout/gagal bayar. Harga reguler ILUSI. AVOID!');
+    else sv('dpv','warn','⚠️ Diskon ringan ('+pct(p)+'). Monitor lebih lanjut.');
+  }
+}
+document.getElementById('dpreg').addEventListener('input',calcDP);
+document.getElementById('dpcross').addEventListener('input',calcDP);
+
+// ── Checklist state ──
+const DEFS={
+  'dc-cap':['d1'],'dc-hrd':['d2'],'dc-zc':['d3']
+};
+const STRATS={
+  s1:['s1a','s1b','s1c','s1d'],
+  s2:['s2a1','s2a2','s2a3'],
+  s3:['s3a','s3b','s3c','s3d','s3e','s3f','s3g','s3h'],
+  s4:['s4a','s4b','s4c'],
+  s5:['s5o1','s5o2','s5o3','s5o4'],
+  s6:['s6a','s6b','s6c','s6d'],
+  s7:['s7a','s7b','s7c','s7d'],
+  s8:['s8p1','s8p2','s8p3']
+};
+
+function updateDCard(key,ids){
+  const ok=ids.every(id=>document.getElementById(id)?.checked);
+  const card=document.getElementById(key);
+  const bar=document.getElementById('dsb-'+key.split('-')[1]);
+  if(ok){card?.classList.add('ok');if(bar)bar.style.background='var(--green)';}
+  else{card?.classList.remove('ok');if(bar)bar.style.background='';}
+  updateFooter();
+}
+
+function updateSCard(id){
+  const ids=STRATS[id];if(!ids)return;
+  const tot=ids.length;
+  const checked=ids.filter(x=>document.getElementById(x)?.checked).length;
+  const card=document.getElementById(id);
+  const bar=card?.querySelector('.ssigbar');
+  const ss=document.getElementById('ss'+id);
+  card?.classList.remove('go','partial','nogo');
+  if(checked===tot){
+    card?.classList.add('go');
+    if(bar){bar.style.background='var(--green)';bar.style.boxShadow='0 0 14px var(--green)';}
+    if(ss){ss.className='sigstat go';ss.innerHTML='<span class="dot go"></span><span>🟢 SEMUA KONDISI TERPENUHI — Siap eksekusi!</span>';}
+  }else if(checked>0){
+    card?.classList.add('partial');
+    if(bar){bar.style.background='var(--gold)';bar.style.boxShadow='0 0 14px var(--gold)';}
+    if(ss){ss.className='sigstat';ss.innerHTML='<span class="dot partial"></span><span>⚠️ '+checked+'/'+tot+' terpenuhi — Lanjutkan verifikasi</span>';}
+  }else{
+    if(bar){bar.style.background='';bar.style.boxShadow='';}
+    if(ss){ss.className='sigstat';ss.innerHTML='<span class="dot idle"></span><span>Checklist belum lengkap</span>';}
+  }
+  updateFooter();
+}
+
+// Wire up defense
+Object.entries(DEFS).forEach(([k,ids])=>{
+  ids.forEach(id=>{
+    document.getElementById(id)?.addEventListener('change',()=>updateDCard(k,ids));
+  });
+});
+
+// Wire up strategies
+Object.keys(STRATS).forEach(id=>{
+  STRATS[id].forEach(cid=>{
+    document.getElementById(cid)?.addEventListener('change',()=>updateSCard(id));
+  });
+});
+
+function updateFooter(){
+  const defIds=['d1','d2','d3'];
+  const defChk=defIds.filter(id=>document.getElementById(id)?.checked).length;
+  updateBar('def',defChk,defIds.length);
+
+  const t1Ids=[...STRATS.s1,...STRATS.s2];
+  const t1Chk=t1Ids.filter(id=>document.getElementById(id)?.checked).length;
+  updateBar('t1',t1Chk,t1Ids.length);
+
+  const t2Ids=[...STRATS.s3,...STRATS.s4];
+  const t2Chk=t2Ids.filter(id=>document.getElementById(id)?.checked).length;
+  updateBar('t2',t2Chk,t2Ids.length);
+
+  const t34Ids=[...STRATS.s5,...STRATS.s6,...STRATS.s7,...STRATS.s8];
+  const t34Chk=t34Ids.filter(id=>document.getElementById(id)?.checked).length;
+  updateBar('t34',t34Chk,t34Ids.length);
+
+  const all=[...defIds,...Object.values(STRATS).flat()];
+  const allChk=all.filter(id=>document.getElementById(id)?.checked).length;
+  const gs=document.getElementById('gstatus');
+  if(allChk===0){gs.textContent='IDLE';gs.className='sval';}
+  else if(allChk===all.length){gs.textContent='READY ✓';gs.className='sval ready';}
+  else{gs.textContent='ACTIVE '+Math.round((allChk/all.length)*100)+'%';gs.className='sval warn';}
+}
+
+function updateBar(key,chk,tot){
+  const fill=document.getElementById('rf-'+key);
+  const txt=document.getElementById('rt-'+key);
+  if(fill)fill.style.width=(tot>0?(chk/tot)*100:0)+'%';
+  if(txt)txt.textContent=chk+'/'+tot;
+}
+updateFooter();
+</script>
 </body>
 </html>
