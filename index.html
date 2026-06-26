@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BEAT IT — IHSG Proprietary Playbook</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080C14;--surf:#0F1724;--surf2:#162030;--bord:#1E2D42;
+  --gold:#F0B429;--gdim:#B8860B;--green:#10B981;--red:#EF4444;
+  --blue:#3B82F6;--purple:#8B5CF6;--cyan:#06B6D4;
+  --text:#E2E8F0;--muted:#64748B;--muted2:#94A3B8;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+.mono{font-family:'SF Mono','Fira Code',Courier,monospace}
+
+/* TICKER BAR */
+.ticker{background:var(--surf);border-bottom:1px solid var(--bord);padding:0;overflow:hidden;height:32px;display:flex;align-items:center}
+.ticker-label{flex-shrink:0;padding:0 16px;font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:'SF Mono',monospace;border-right:1px solid var(--bord);height:100%;display:flex;align-items:center;background:var(--surf2)}
+.ticker-scroll{flex:1;overflow:hidden;position:relative}
+.ticker-inner{display:flex;gap:32px;white-space:nowrap;animation:ticker-move 40s linear infinite;padding:0 16px}
+.ticker-inner:hover{animation-play-state:paused}
+.tick-item{display:flex;align-items:center;gap:8px;font-family:'SF Mono',monospace;font-size:11px}
+.tick-name{color:var(--gold);font-weight:700}
+.tick-up{color:var(--green)}
+.tick-down{color:var(--red)}
+.tick-dot{width:5px;height:5px;border-radius:50%}
+@keyframes ticker-move{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* HEADER */
+.site-header{background:var(--surf);border-bottom:2px solid var(--gold);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:200}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),var(--gdim));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;animation:pgold 3s ease-in-out infinite}
+@keyframes pgold{0%,100%{box-shadow:0 0 16px rgba(240,180,41,.3)}50%{box-shadow:0 0 32px rgba(240,180,41,.7),0 0 64px rgba(240,180,41,.2)}}
+.brand-title{font-size:28px;font-weight:900;letter-spacing:5px;color:var(--gold);font-family:'SF Mono',monospace}
+.brand-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.hstats{display:flex;gap:8px;flex-wrap:wrap}
+.spill{background:var(--surf2);border:1px solid var(--bord);border-radius:6px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;min-width:90px}
+.slbl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'SF Mono',monospace}
+.sval{font-family:'SF Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)}
+#gstatus{color:var(--muted2);transition:color .3s}
+#gstatus.active{color:var(--green)}
+
+/* LAYOUT */
+.app{display:flex;min-height:calc(100vh - 130px)}
+
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--bord);padding:16px 0;position:sticky;top:130px;height:calc(100vh - 130px);overflow-y:auto}
+.sb-section{margin-bottom:4px}
+.sb-label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;padding:10px 16px 4px;font-family:'SF Mono',monospace}
+.sb-btn{width:100%;background:none;border:none;text-align:left;padding:8px 16px;color:var(--muted2);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;border-left:3px solid transparent}
+.sb-btn:hover{color:var(--text);background:var(--surf2)}
+.sb-btn.active{color:var(--gold);background:rgba(240,180,41,.06);border-left-color:var(--gold)}
+.sb-btn .sb-badge{font-family:'SF Mono',monospace;font-size:9px;background:var(--surf2);padding:1px 5px;border-radius:3px;margin-left:auto}
+.sb-divider{height:1px;background:var(--bord);margin:8px 16px}
+
+/* MAIN */
+.main-content{flex:1;padding:24px;overflow-x:hidden}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block;animation:panelin .3s ease}
+@keyframes panelin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION HEADERS */
+.sec-header{margin-bottom:24px}
+.sec-eyebrow{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'SF Mono',monospace;margin-bottom:6px}
+.sec-title{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.sec-sub{color:var(--muted2);font-size:13px}
+
+/* CARDS */
+.card{background:var(--surf);border:1px solid var(--bord);border-radius:10px;overflow:hidden;margin-bottom:20px;transition:border-color .3s}
+.card.go{border-color:var(--green)}
+.card.partial{border-color:var(--gold)}
+.card.nogo{border-color:var(--red)}
+.card-sigbar{height:3px;background:var(--bord);transition:background .5s,box-shadow .5s}
+.card.go .card-sigbar{background:var(--green);box-shadow:0 0 10px var(--green)}
+.card.partial .card-sigbar{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.card.nogo .card-sigbar{background:var(--red);box-shadow:0 0 10px var(--red)}
+.card-body{padding:20px}
+.card-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.card-num{font-family:'SF Mono',monospace;font-size:10px;color:var(--muted)}
+.card-tag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-family:'SF Mono',monospace}
+.card-cycle{font-family:'SF Mono',monospace;font-size:9px;background:var(--surf2);color:var(--muted2);padding:2px 7px;border-radius:3px;margin-left:auto}
+.card-body h3{font-size:18px;font-weight:800;margin-bottom:6px;letter-spacing:-.3px}
+.card-desc{color:var(--muted2);font-size:13px;line-height:1.65;margin-bottom:18px}
+
+/* CHECKLIST */
+.chk-group{background:var(--bg);border:1px solid var(--bord);border-radius:8px;padding:14px;margin-bottom:14px}
+.chk-group-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'SF Mono',monospace;margin-bottom:10px}
+.chk-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid rgba(30,45,66,.5)}
+.chk-item:last-child{border-bottom:none}
+.chk{-webkit-appearance:none;appearance:none;width:17px;height:17px;border:2px solid var(--bord);border-radius:4px;background:var(--surf2);cursor:pointer;flex-shrink:0;margin-top:1px;transition:all .2s;position:relative}
+.chk:checked{background:var(--green);border-color:var(--green)}
+.chk:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:10px;font-weight:900}
+.chk+label{font-size:13px;color:var(--muted2);cursor:pointer}
+.chk:checked+label{color:var(--text)}
+
+/* CALC */
+.calc-block{background:var(--bg);border:1px solid var(--bord);border-radius:8px;padding:16px;margin:14px 0}
+.calc-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'SF Mono',monospace;margin-bottom:12px}
+.clabel{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-family:'SF Mono',monospace}
+.cinput{width:100%;background:var(--surf2);border:1px solid var(--bord);border-radius:6px;padding:9px 11px;color:var(--text);font-family:'SF Mono',monospace;font-size:14px;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+.cinput::-webkit-inner-spin-button,.cinput::-webkit-outer-spin-button{-webkit-appearance:none}
+.cinput:focus{border-color:var(--gold)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:10px}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(30,45,66,.5);font-size:13px}
+.rrow:last-child{border-bottom:none}
+.rrow>span:first-child{color:var(--muted2)}
+.rval{font-family:'SF Mono',monospace;font-size:14px;font-weight:700}
+.tg{color:var(--green)!important}.tr{color:var(--red)!important}.ty{color:var(--gold)!important}.tm{color:var(--muted2)!important}
+
+/* VERDICT */
+.verdict{margin-top:10px;padding:10px 14px;border-radius:6px;font-family:'SF Mono',monospace;font-size:12px;font-weight:600;display:none;animation:fin .3s ease}
+@keyframes fin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.verdict.go{display:block;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.verdict.nogo{display:block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.verdict.warn{display:block;background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.3);color:var(--gold)}
+
+/* ACTION BOXES */
+.abox{padding:11px 14px;border-radius:7px;font-size:13px;margin:10px 0;line-height:1.6}
+.abox span{font-weight:700}
+.abox.buy{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);color:#6EE7B7}
+.abox.danger{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);color:#FCA5A5}
+.abox.warn{background:rgba(240,180,41,.07);border:1px solid rgba(240,180,41,.25);color:#FDE68A}
+.exitbox{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.2);border-left:3px solid var(--red);border-radius:7px;padding:11px 14px;margin-top:14px}
+.exitlbl{display:block;font-family:'SF Mono',monospace;font-size:10px;color:var(--red);letter-spacing:1px;margin-bottom:5px}
+.exitbox p{font-size:13px;color:var(--muted2)}
+.warnbox{background:rgba(239,68,68,.1);border:1px solid var(--red);border-radius:7px;padding:11px 14px;color:#FCA5A5;font-size:13px;font-weight:600;margin:10px 0}
+
+/* SIGNAL STATUS */
+.sigstat{display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 13px;background:var(--surf2);border-radius:7px;font-family:'SF Mono',monospace;font-size:11px;color:var(--muted2);transition:all .3s}
+.sigstat.go{background:rgba(16,185,129,.07);color:var(--green)}
+.sigstat.nogo{background:rgba(239,68,68,.07);color:var(--red)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot.idle{background:var(--muted)}
+.dot.go{background:var(--green);box-shadow:0 0 7px var(--green);animation:blink 1s ease-in-out infinite}
+.dot.partial{background:var(--gold)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--bord);margin-bottom:14px}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted2);font-size:12px;font-weight:600;padding:7px 14px;cursor:pointer;transition:all .2s;margin-bottom:-1px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tabcont{display:none}
+.tabcont.active{display:block;animation:fin .25s ease}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+
+/* ARB TRACKER */
+.arb-track{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.arb-day{flex:1;min-width:55px;text-align:center;padding:8px 4px;background:var(--surf2);border:1px solid var(--bord);border-radius:6px;font-size:11px;color:var(--muted);font-family:'SF Mono',monospace}
+.arb-day small{display:block;font-size:8px;margin-top:2px;color:var(--muted)}
+.arb-day.aday{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green)}
+.arb-day.aday small{color:var(--green)}
+.arb-day.dday{background:rgba(240,180,41,.07);border-color:rgba(240,180,41,.2);color:var(--gold)}
+.arb-day.dday small{color:var(--gold)}
+
+/* TIER SELECTOR */
+.tiersel{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+.tbtn{background:var(--surf2);border:1px solid var(--bord);border-radius:6px;color:var(--muted2);font-size:11px;padding:7px 12px;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+.tbtn:hover{color:var(--text);border-color:var(--muted2)}
+.tbtn.active{background:rgba(240,180,41,.1);color:var(--gold);border-color:var(--gold)}
+.tbtn small{display:block;font-size:9px;color:var(--muted);margin-top:1px}
+.tbtn.active small{color:var(--gdim)}
+.holdbox{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 13px;background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.2);border-radius:7px;font-size:13px;color:var(--gold)}
+
+/* CONGLO PANEL */
+.conglo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:16px}
+.conglo-card{background:var(--surf);border:1px solid var(--bord);border-radius:9px;padding:16px;cursor:pointer;transition:all .2s}
+.conglo-card:hover{border-color:var(--gold);transform:translateY(-1px)}
+.conglo-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.conglo-icon{width:36px;height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.conglo-name{font-size:15px;font-weight:700}
+.conglo-owner{font-size:11px;color:var(--muted2)}
+.conglo-stocks{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.stock-chip{background:var(--surf2);border:1px solid var(--bord);border-radius:4px;padding:2px 7px;font-family:'SF Mono',monospace;font-size:11px;color:var(--gold);font-weight:600}
+.conglo-play{font-size:12px;color:var(--muted2);line-height:1.5}
+.conglo-tier{display:flex;align-items:center;gap:6px;margin-top:8px}
+.tier-badge{font-size:9px;padding:2px 8px;border-radius:3px;font-weight:700;font-family:'SF Mono',monospace}
+.t-agg{background:rgba(59,130,246,.12);color:#60A5FA;border:1px solid rgba(59,130,246,.3)}
+.t-eng{background:rgba(139,92,246,.12);color:#A78BFA;border:1px solid rgba(139,92,246,.3)}
+.t-pol{background:rgba(16,185,129,.12);color:#34D399;border:1px solid rgba(16,185,129,.3)}
+.t-gro{background:rgba(240,180,41,.12);color:var(--gold);border:1px solid rgba(240,180,41,.3)}
+
+/* IPO TABLE */
+.ipo-matrix{width:100%;border-collapse:collapse;margin-top:14px;font-size:12px}
+.ipo-matrix th{background:var(--surf2);padding:8px 12px;text-align:left;font-family:'SF Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--bord)}
+.ipo-matrix td{padding:9px 12px;border-bottom:1px solid rgba(30,45,66,.5);vertical-align:top;line-height:1.5}
+.ipo-matrix tr:hover td{background:rgba(240,180,41,.03)}
+.badge-buy{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-skip{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-watch{background:rgba(240,180,41,.1);color:var(--gold);border:1px solid rgba(240,180,41,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
+
+/* ANTI-TRAP TABLE */
+.trap-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:12px}
+.trap-table th{background:var(--surf2);padding:8px 12px;text-align:left;font-family:'SF Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--bord)}
+.trap-table td{padding:9px 12px;border-bottom:1px solid rgba(30,45,66,.5);vertical-align:top;line-height:1.5}
+.trap-name{font-weight:700;color:var(--red);margin-bottom:2px}
+.trap-counter{color:var(--green);font-size:11px}
+
+/* FOOTER */
+.footer{background:var(--surf);border-top:1px solid var(--bord);padding:28px 24px 20px}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;margin-bottom:20px}
+.footer-col h4{font-size:12px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--bord)}
+.qr-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(30,45,66,.4);font-size:12px;color:var(--muted2)}
+.qr-val{font-family:'SF Mono',monospace;font-weight:700;color:var(--text)}
+.rem-item{font-size:12px;color:var(--muted2);padding:5px 0;border-bottom:1px solid rgba(30,45,66,.3)}
+.rb-item{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:11px;color:var(--muted2)}
+.rb-item>span:first-child{min-width:90px}
+.rb-item>span:last-child{font-family:'SF Mono',monospace;font-size:10px;min-width:28px;text-align:right}
+.rbar{flex:1;height:4px;background:var(--surf2);border-radius:2px;overflow:hidden}
+.rfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:2px;width:0%;transition:width .7s ease}
+.footer-bottom{text-align:center;padding-top:16px;border-top:1px solid var(--bord);font-size:11px;color:var(--muted);font-family:'SF Mono',monospace}
+
+/* PROGRESS RING */
+.prog-container{display:flex;align-items:center;gap:20px;padding:16px;background:var(--surf2);border-radius:8px;margin-bottom:20px;flex-wrap:wrap}
+.prog-ring{position:relative;flex-shrink:0}
+.prog-ring svg{transform:rotate(-90deg)}
+.prog-ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace;font-size:16px;font-weight:700;color:var(--gold)}
+.prog-info{flex:1}
+.prog-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.prog-sub{font-size:12px;color:var(--muted2)}
+
+@media(max-width:700px){
+  .sidebar{display:none}
+  .brand-title{font-size:20px}
+  .hstats{display:none}
+  .app{flex-direction:column}
+  .main-content{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER BAR -->
+<div class="ticker">
+  <div class="ticker-label">⚡ LIVE</div>
+  <div class="ticker-scroll">
+    <div class="ticker-inner" id="ticker">
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$BREN</span><span class="tick-up">+3.2% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$TPIA</span><span class="tick-up">+1.8% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$CUAN</span><span class="tick-down">-0.9% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$PANI</span><span class="tick-up">+2.1% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$AMMN</span><span class="tick-up">+0.7% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$ADRO</span><span class="tick-down">-1.2% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$MDKA</span><span class="tick-up">+4.5% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$BBCA</span><span class="tick-up">+0.3% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$BUMI</span><span class="tick-down">-2.1% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$GEMS</span><span class="tick-up">+1.4% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$NCKL</span><span class="tick-up">+2.8% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$MBMA</span><span class="tick-up">+3.1% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$INKP</span><span class="tick-down">-0.5% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$BRPT</span><span class="tick-up">+1.9% ▲</span></div>
+      <!-- duplicate for seamless loop -->
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$BREN</span><span class="tick-up">+3.2% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$TPIA</span><span class="tick-up">+1.8% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$CUAN</span><span class="tick-down">-0.9% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$PANI</span><span class="tick-up">+2.1% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$AMMN</span><span class="tick-up">+0.7% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$ADRO</span><span class="tick-down">-1.2% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$MDKA</span><span class="tick-up">+4.5% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$BBCA</span><span class="tick-up">+0.3% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$BUMI</span><span class="tick-down">-2.1% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$GEMS</span><span class="tick-up">+1.4% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$NCKL</span><span class="tick-up">+2.8% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$MBMA</span><span class="tick-up">+3.1% ▲</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--red)"></span><span class="tick-name">$INKP</span><span class="tick-down">-0.5% ▼</span></div>
+      <div class="tick-item"><span class="tick-dot" style="background:var(--green)"></span><span class="tick-name">$BRPT</span><span class="tick-up">+1.9% ▲</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="brand">
+    <div class="brand-icon">⚡</div>
+    <div><div class="brand-title">BEAT IT</div><div class="brand-sub">IHSG Proprietary Playbook · Sovereign Wealth Alpha</div></div>
+  </div>
+  <div class="hstats">
+    <div class="spill"><span class="slbl">MAX AUM</span><span class="sval">Rp 50M</span></div>
+    <div class="spill"><span class="slbl">Round-Trip Fee</span><span class="sval">0.40%</span></div>
+    <div class="spill"><span class="slbl">Min Net Yield</span><span class="sval">&gt;3%</span></div>
+    <div class="spill"><span class="slbl">Status</span><span class="sval" id="gstatus">IDLE</span></div>
+  </div>
+</header>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Foundation</div>
+    <button class="sb-btn active" onclick="showPanel('defense')">🛡️ Pertahanan Margin</button>
+    <button class="sb-btn" onclick="showPanel('conglo')">🏛️ Peta Konglomerasi</button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">Tier 1 — Harian</div>
+    <button class="sb-btn" onclick="showPanel('t1')">⚡ Breakout Anomaly<span class="sb-badge">S·01</span></button>
+    <button class="sb-btn" onclick="showPanel('t1')">🔄 ARA / ARB Play<span class="sb-badge">S·02</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">Tier 2 — Bulanan</div>
+    <button class="sb-btn" onclick="showPanel('t2')">🚀 E-IPO Squeeze<span class="sb-badge">S·03</span></button>
+    <button class="sb-btn" onclick="showPanel('t2')">💰 Dividend Trap<span class="sb-badge">S·04</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">Tier 3 — Kuartalan</div>
+    <button class="sb-btn" onclick="showPanel('t3')">🐋 Rights Issue Jumbo<span class="sb-badge">S·05</span></button>
+    <button class="sb-btn" onclick="showPanel('t3')">🐉 FCA Sleeping Dragon<span class="sb-badge">S·06</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">Tier 4 — Invisible</div>
+    <button class="sb-btn" onclick="showPanel('t4')">🔒 MTO Spread<span class="sb-badge">S·07</span></button>
+    <button class="sb-btn" onclick="showPanel('t4')">🕶️ Dark Pool Forensics<span class="sb-badge">S·08</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">Intelligence</div>
+    <button class="sb-btn" onclick="showPanel('ipo')">📋 IPO Filter Matrix</button>
+    <button class="sb-btn" onclick="showPanel('antitrap')">⚠️ Anti-Trap Protocols</button>
+  </div>
+</nav>
+
+<main class="main-content">
+
+<!-- ===== PANEL: DEFENSE ===== -->
+<div class="panel active" id="panel-defense">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🛡️ MODUL I — WAJIB</div>
+    <h2 class="sec-title">Sistem Pertahanan Margin</h2>
+    <p class="sec-sub">3 Aturan absolut yang harus dipenuhi <strong>SEBELUM</strong> eksekusi strategi apapun. Fee 0.40% Round-Trip adalah musuh utama Alpha.</p>
+  </div>
+
+  <!-- Progress summary -->
+  <div class="prog-container">
+    <div class="prog-ring">
+      <svg width="70" height="70"><circle cx="35" cy="35" r="28" fill="none" stroke="var(--bord)" stroke-width="5"/><circle cx="35" cy="35" r="28" fill="none" stroke="var(--gold)" stroke-width="5" stroke-dasharray="175.9" stroke-dashoffset="175.9" id="defense-ring" style="transition:stroke-dashoffset .7s ease"/></svg>
+      <div class="pct" id="defense-pct">0%</div>
+    </div>
+    <div class="prog-info">
+      <div class="prog-title">Defense Module Readiness</div>
+      <div class="prog-sub" id="defense-status-text">Lengkapi semua 3 aturan sebelum eksekusi</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <!-- Rule 1: Capacity -->
+    <div class="card" id="dc1">
+      <div class="card-sigbar"></div>
+      <div class="card-body">
+        <div class="card-meta"><span class="card-num mono">01</span><span class="card-tag">KAPASITAS ADTV</span></div>
+        <h3>Aturan ADTV 5–10%</h3>
+        <p class="card-desc">Max size posisi per emiten tidak boleh melebihi 10% ADTV. Mencegah slippage saat exit.</p>
+        <div class="calc-block">
+          <div class="calc-title">Kalkulator Batas Posisi</div>
+          <label class="clabel">ADTV Emiten (Rp Miliar)</label>
+          <input class="cinput" type="number" id="adtv" placeholder="Contoh: 100"/>
+          <div style="margin-top:10px">
+            <div class="rrow"><span>Batas Konservatif (5%)</span><span class="rval" id="cap-lo">—</span></div>
+            <div class="rrow"><span>Batas Maksimal (10%)</span><span class="rval" id="cap-hi">—</span></div>
+          </div>
+        </div>
+        <div class="chk-item"><input type="checkbox" id="d1" class="chk"/><label for="d1">Size posisi di bawah 10% ADTV ✓</label></div>
+      </div>
+    </div>
+
+    <!-- Rule 2: Hurdle Rate -->
+    <div class="card" id="dc2">
+      <div class="card-sigbar"></div>
+      <div class="card-body">
+        <div class="card-meta"><span class="card-num mono">02</span><span class="card-tag">5% HURDLE RATE</span></div>
+        <h3>Buffer Rule</h3>
+        <p class="card-desc">Jarak ke resistance harus &gt;5%. Setelah fee 0.40% + slippage 1.5%, Net Yield masih &gt;3%.</p>
+        <div class="calc-block">
+          <div class="calc-title">Kalkulator Kelayakan Entry</div>
+          <div class="cgrid">
+            <div><label class="clabel">Harga Entry (Rp)</label><input class="cinput" type="number" id="ep" placeholder="1000"/></div>
+            <div><label class="clabel">Resistance (Rp)</label><input class="cinput" type="number" id="rp" placeholder="1100"/></div>
+          </div>
+          <div class="rrow"><span>Jarak ke Resistance</span><span class="rval" id="hrd-gap">—</span></div>
+          <div class="rrow"><span>Setelah Fee 0.40%</span><span class="rval" id="hrd-fee">—</span></div>
+          <div class="rrow"><span>Setelah Slippage 1.5%</span><span class="rval" id="hrd-slip">—</span></div>
+          <div class="verdict" id="hrd-v"></div>
+        </div>
+        <div class="chk-item"><input type="checkbox" id="d2" class="chk"/><label for="d2">Jarak ke resistance &gt;5% ✓</label></div>
+      </div>
+    </div>
+
+    <!-- Rule 3: Zero Churn -->
+    <div class="card" id="dc3">
+      <div class="card-sigbar"></div>
+      <div class="card-body">
+        <div class="card-meta"><span class="card-num mono">03</span><span class="card-tag">ZERO-CHURN</span></div>
+        <h3>Sniper Strike Policy</h3>
+        <p class="card-desc">Tier 3 & 4: Setelah akumulasi, tahan 3–9 bulan. Matikan mentalitas scalper. Eksekusi adalah Sniper Strike.</p>
+        <div class="calc-block">
+          <div class="calc-title">Hold Advisor</div>
+          <div class="tiersel">
+            <button class="tbtn" data-tier="1" onclick="setHold(this)">Tier 1<small>Harian</small></button>
+            <button class="tbtn" data-tier="2" onclick="setHold(this)">Tier 2<small>Bulanan</small></button>
+            <button class="tbtn active" data-tier="3" onclick="setHold(this)">Tier 3<small>Kuartalan</small></button>
+            <button class="tbtn" data-tier="4" onclick="setHold(this)">Tier 4<small>Situasional</small></button>
+          </div>
+          <div class="holdbox"><span id="hold-icon">🎯</span><span id="hold-text">Hold 3–9 bulan. Matikan layar setelah akumulasi selesai.</span></div>
+        </div>
+        <div class="chk-item"><input type="checkbox" id="d3" class="chk"/><label for="d3">Exit strategy sudah ditentukan sebelum entry ✓</label></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL: CONGLO MAP ===== -->
+<div class="panel" id="panel-conglo">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🏛️ PETA KEKUATAN</div>
+    <h2 class="sec-title">The Elite 17 Conglomerates</h2>
+    <p class="sec-sub">IHSG digerakkan oleh 17 keluarga ini. Pahami gaya main mereka, baru eksekusi.</p>
+  </div>
+  <div class="conglo-grid">
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(240,180,41,.15)">👑</div><div><div class="conglo-name">Grup Barito</div><div class="conglo-owner">Prajogo Pangestu · ~Rp 930T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$BREN</span><span class="stock-chip">$TPIA</span><span class="stock-chip">$CUAN</span><span class="stock-chip">$BRPT</span></div><p class="conglo-play">Mengeringkan likuiditas, mengerek harga ke langit. Masuk indeks MSCI/FTSE untuk pancing dana asing.</p><div class="conglo-tier"><span class="tier-badge t-agg">AGGRESSOR</span><span style="font-size:11px;color:var(--muted2)">Market Cap Engineer</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(59,130,246,.15)">🔵</div><div><div class="conglo-name">Aliansi Aguan–Salim</div><div class="conglo-owner">Aguan + Anthoni Salim · ~Rp 300T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$PANI</span><span class="stock-chip">$AMMN</span><span class="stock-chip">$DNET</span></div><p class="conglo-play">Rights Issue Jumbo. Backdoor Listing. Fundamental berubah drastis dalam semalam (PIK 2).</p><div class="conglo-tier"><span class="tier-badge t-agg">AGGRESSOR</span><span style="font-size:11px;color:var(--muted2)">BDL Masterpiece</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(16,185,129,.15)">💚</div><div><div class="conglo-name">Thohir & Saratoga</div><div class="conglo-owner">Boy Thohir · ~Rp 60T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$ADRO</span><span class="stock-chip">$MDKA</span><span class="stock-chip">$MBMA</span><span class="stock-chip">$SRTG</span></div><p class="conglo-play">Spin-off dan Buyback rapi. Disukai asing karena GCG baik. Event-Driven murni.</p><div class="conglo-tier"><span class="tier-badge t-pol">STRATEGIC</span><span style="font-size:11px;color:var(--muted2)">Corporate Action</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(30,100,200,.15)">🏦</div><div><div class="conglo-name">Djarum (Hartono)</div><div class="conglo-owner">R.Budi & Michael Hartono · ~Rp 775T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$BBCA</span><span class="stock-chip">$TOWR</span><span class="stock-chip">$BELI</span></div><p class="conglo-play">Perisai Titanium. Tempat parkir uang. Tidak goreng saham — bangun ekosistem digital & infrastruktur.</p><div class="conglo-tier"><span class="tier-badge t-gro">DEFENDER</span><span style="font-size:11px;color:var(--muted2)">Wealth Preservation</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(139,92,246,.15)">🌿</div><div><div class="conglo-name">Sinar Mas (Widjaja)</div><div class="conglo-owner">Keluarga Widjaja · ~Rp 186T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$INKP</span><span class="stock-chip">$GEMS</span><span class="stock-chip">$BSDE</span><span class="stock-chip">$FREN</span></div><p class="conglo-play">Raja utang & restrukturisasi. Reverse Takeover. Dividen $GEMS adalah magnet ritel. $FREN = nilai trap.</p><div class="conglo-tier"><span class="tier-badge t-eng">ENGINEER</span><span style="font-size:11px;color:var(--muted2)">Restrukturisasi</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(239,68,68,.15)">🔥</div><div><div class="conglo-name">Bakrie Group</div><div class="conglo-owner">Keluarga Bakrie</div></div></div><div class="conglo-stocks"><span class="stock-chip">$BUMI</span><span class="stock-chip">$BRMS</span><span class="stock-chip">$VKTR</span><span class="stock-chip">$BNBR</span></div><p class="conglo-play">The Phoenix. Saham sering gocap lalu bangkit via restrukturisasi utang. Salim sudah masuk $BUMI.</p><div class="conglo-tier"><span class="tier-badge t-eng">ENGINEER</span><span style="font-size:11px;color:var(--muted2)">Debt-to-Equity Swap</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(240,180,41,.15)">🌾</div><div><div class="conglo-name">Triputra (TP Rachmat)</div><div class="conglo-owner">Theodore P. Rachmat · ~Rp 54T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$DRMA</span><span class="stock-chip">$ASSA</span><span class="stock-chip">$TAPG</span><span class="stock-chip">$DSNG</span></div><p class="conglo-play">Ex-CEO Astra. Supply Chain Mastery. Tidak goreng saham. Naik pelan tapi pasti sesuai laba.</p><div class="conglo-tier"><span class="tier-badge t-gro">GROWER</span><span style="font-size:11px;color:var(--muted2)">Fundamental Riil</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(6,182,212,.15)">🏗️</div><div><div class="conglo-name">Tancorp (Tanoko)</div><div class="conglo-owner">Hermanto Tanoko · ~Rp 50T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$AVIA</span><span class="stock-chip">$CLEO</span><span class="stock-chip">$BLES</span><span class="stock-chip">$DEPO</span></div><p class="conglo-play">Serial Lister. IPO anak usaha rutin. Ekosistem tertutup (bangunan). Capex agresif tiap tahun.</p><div class="conglo-tier"><span class="tier-badge t-gro">GROWER</span><span style="font-size:11px;color:var(--muted2)">Serial IPO</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(240,180,41,.15)">🛢️</div><div><div class="conglo-name">Hapsoro (Happy H.)</div><div class="conglo-owner">Hapsoro Sukmonohadi</div></div></div><div class="conglo-stocks"><span class="stock-chip">$RAJA</span><span class="stock-chip">$OASA</span><span class="stock-chip">$CBRE</span></div><p class="conglo-play">Silent Operation. Volume tiba-tiba meledak tanpa berita, naik tinggi, baru berita keluar kemudian.</p><div class="conglo-tier"><span class="tier-badge t-pol">STRATEGIC</span><span style="font-size:11px;color:var(--muted2)">BUMN Symbiosis</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(16,185,129,.15)">🏛️</div><div><div class="conglo-name">Arsari (Hashim D.)</div><div class="conglo-owner">Hashim Djojohadikusumo</div></div></div><div class="conglo-stocks"><span class="stock-chip">$BBTN</span><span class="stock-chip">$TINS</span><span class="stock-chip">$TAPG</span></div><p class="conglo-play">Policy Driven. Harga bergerak seiring kebijakan Prabowo. B50, 3 Juta Rumah, Hilirisasi.</p><div class="conglo-tier"><span class="tier-badge t-pol">POLICY</span><span style="font-size:11px;color:var(--muted2)">Ring-1 Istana</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(139,92,246,.15)">📺</div><div><div class="conglo-name">MNC (Hary Tanoe)</div><div class="conglo-owner">Hary Tanoesoedibjo · ~Rp 17T</div></div></div><div class="conglo-stocks"><span class="stock-chip">$MNCN</span><span class="stock-chip">$MSIN</span><span class="stock-chip">$BABP</span><span class="stock-chip">$IATA</span></div><p class="conglo-play">Media TV untuk pumping berita. Rencana merger sering batal, tapi harga sudah naik duluan.</p><div class="conglo-tier"><span class="tier-badge t-eng">VALUE TRAP</span><span style="font-size:11px;color:var(--muted2)">News Driven Only</span></div></div>
+    <div class="conglo-card"><div class="conglo-header"><div class="conglo-icon" style="background:rgba(240,180,41,.15)">🌊</div><div><div class="conglo-name">Jhonlin (Haji Isam)</div><div class="conglo-owner">Andi Syamsuddin Arsyad</div></div></div><div class="conglo-stocks"><span class="stock-chip">$JARR</span><span class="stock-chip">$PRBK</span></div><p class="conglo-play">Commodity King Kalimantan. Proxy B50 biodiesel. Likuiditas tipis, naik kencang saat ada kebijakan.</p><div class="conglo-tier"><span class="tier-badge t-pol">POLICY</span><span style="font-size:11px;color:var(--muted2)">Biofuel Proxy</span></div></div>
+  </div>
+
+  <div style="margin-top:24px;padding:16px;background:var(--surf);border:1px solid var(--bord);border-radius:9px">
+    <div class="sec-eyebrow" style="margin-bottom:12px">⚡ FUTURE SECTORS ALPHA</div>
+    <div class="grid3">
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border:1px solid var(--bord)"><div style="color:var(--gold);font-weight:700;margin-bottom:4px">🔧 Tembaga</div><div style="font-size:12px;color:var(--muted2)">Kabel AI & EV. Supply deficit global. $AMMN, $MDKA</div></div>
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border:1px solid var(--bord)"><div style="color:var(--green);font-weight:700;margin-bottom:4px">🌋 Geothermal</div><div style="font-size:12px;color:var(--muted2)">Baseload green. Data center & smelter. $BREN, $PGEO</div></div>
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border:1px solid var(--bord)"><div style="color:var(--blue);font-weight:700;margin-bottom:4px">🔋 Nikel HPAL</div><div style="font-size:12px;color:var(--muted2)">Katoda baterai EV. $NCKL, $MBMA, $INCO</div></div>
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border:1px solid var(--bord)"><div style="color:var(--cyan);font-weight:700;margin-bottom:4px">🌿 Bio-Energy</div><div style="font-size:12px;color:var(--muted2)">B50 mandatori. $TAPG, $JARR, $DSNG</div></div>
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border:1px solid var(--bord)"><div style="color:var(--purple);font-weight:700;margin-bottom:4px">☀️ Silika</div><div style="font-size:12px;color:var(--muted2)">Panel surya & semikonduktor. Next nickel.</div></div>
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border:1px solid var(--bord)"><div style="color:var(--gold);font-weight:700;margin-bottom:4px">🏘️ Properti</div><div style="font-size:12px;color:var(--muted2)">3 Juta Rumah. $BBTN, $CTRA, $SMGR</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL: TIER 1 ===== -->
+<div class="panel" id="panel-t1">
+  <div class="sec-header">
+    <div class="sec-eyebrow">⚡ TIER 1 — HARIAN / MINGGUAN</div>
+    <h2 class="sec-title">Tactical Strikes</h2>
+    <p class="sec-sub">Mesin pencetak kas aktif · 20–30% modal · Hit-and-Run · Min target &gt;5% gross untuk tutup fee</p>
+  </div>
+
+  <!-- S01: Breakout -->
+  <div class="card" id="s1">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·01</span><span class="card-tag">HIGH-VOLUME MOMENTUM</span><span class="card-cycle">Harian</span></div>
+      <h3>Breakout Anomaly</h3>
+      <p class="card-desc">Mengekor institusi yang menyuntikkan likuiditas masif. Entry saat volume breakout ≥300% MA20 dan antrean offer dimakan habis di Running Trade.</p>
+      <div class="chk-group">
+        <div class="chk-group-title">📋 Checklist Eksekusi</div>
+        <div class="chk-item"><input type="checkbox" id="s1a" class="chk"/><label for="s1a">Harga menembus level resistensi teknikal yang valid</label></div>
+        <div class="chk-item"><input type="checkbox" id="s1b" class="chk"/><label for="s1b">Volume hari ini ≥ 300% MA20 Volume</label></div>
+        <div class="chk-item"><input type="checkbox" id="s1c" class="chk"/><label for="s1c">Antrean Offer (jual) dimakan habis di Running Trade — bukan Spoofing</label></div>
+        <div class="chk-item"><input type="checkbox" id="s1d" class="chk"/><label for="s1d">Sudah cek ADTV (Rule 01) & Hurdle Rate (Rule 02) terpenuhi</label></div>
+      </div>
+      <div class="calc-block">
+        <div class="calc-title">🔢 Kalkulator Volume Anomaly</div>
+        <div class="cgrid">
+          <div><label class="clabel">MA20 Volume (lot)</label><input class="cinput" type="number" id="s1ma" placeholder="50000"/></div>
+          <div><label class="clabel">Volume Hari Ini (lot)</label><input class="cinput" type="number" id="s1vol" placeholder="180000"/></div>
+        </div>
+        <div class="rrow"><span>Volume Multiplier</span><span class="rval" id="s1mul">—</span></div>
+        <div class="rrow"><span>Threshold 300% MA20</span><span class="rval" id="s1thr">—</span></div>
+        <div class="verdict" id="s1v"></div>
+      </div>
+      <div class="exitbox"><span class="exitlbl">🚨 EXIT SIGNAL</span><p>Jual seketika saat harga masih naik TAPI: (1) Volume mulai menyusut — Bull Trap, atau (2) Antrean Bid mulai dicabut — Exhaustion.</p></div>
+      <div class="sigstat" id="ss1"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+
+  <!-- S02: ARA/ARB -->
+  <div class="card" id="s2">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·02</span><span class="card-tag">MICROSTRUCTURE ANOMALY</span><span class="card-cycle">Harian</span></div>
+      <h3>ARA Gap-Up & ARB Capitulation Sweep</h3>
+      <p class="card-desc">Eksploitasi aturan Auto Reject Bursa. Aturan kaku yang membuat ritel panik adalah ladang emas bagi Contrarian.</p>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'ara')">🟢 ARA Gap-Up Play</button>
+        <button class="tab" onclick="switchTab(this,'arb')">🔴 ARB Capitulation Sweep</button>
+      </div>
+      <div class="tabcont active" id="tab-ara">
+        <div class="chk-group">
+          <div class="chk-group-title">📋 Checklist ARA Play</div>
+          <div class="chk-item"><input type="checkbox" id="s2a1" class="chk"/><label for="s2a1">Saham mengunci ARA dalam 30 menit pertama Sesi 1</label></div>
+          <div class="chk-item"><input type="checkbox" id="s2a2" class="chk"/><label for="s2a2">Antrean Bid sangat tebal — tidak goyah sampai close</label></div>
+          <div class="chk-item"><input type="checkbox" id="s2a3" class="chk"/><label for="s2a3">Tidak ada block trade buangan di Running Trade</label></div>
+        </div>
+        <div class="abox buy"><span>🟢 AKSI: BELI & HOLD.</span> Jual esok paginya saat Gap-Up terbawa sisa euforia. Jangan serakah tahan terlalu lama.</div>
+      </div>
+      <div class="tabcont" id="tab-arb">
+        <div class="chk-group">
+          <div class="chk-group-title">📋 Checklist ARB Sweep</div>
+          <div class="chk-item"><input type="checkbox" id="s2b1" class="chk"/><label for="s2b1">Saham terkunci ARB 3–5 hari berturut-turut</label></div>
+          <div class="chk-item"><input type="checkbox" id="s2b2" class="chk"/><label for="s2b2">Baru masuk di Hari ke-3 atau ke-4 (abaikan hari 1 & 2)</label></div>
+          <div class="chk-item"><input type="checkbox" id="s2b3" class="chk"/><label for="s2b3">Ledakan volume serapan ≥ 300% MA20 terjadi di hari ARB</label></div>
+          <div class="chk-item"><input type="checkbox" id="s2b4" class="chk"/><label for="s2b4">Harga masih di level ARB — Paus sedang menadah ritel</label></div>
+        </div>
+        <div class="arb-track">
+          <div class="arb-day">H1<br/><small>SKIP</small></div>
+          <div class="arb-day">H2<br/><small>SKIP</small></div>
+          <div class="arb-day aday">H3<br/><small>MASUK ✓</small></div>
+          <div class="arb-day aday">H4<br/><small>OPTIMAL ✓</small></div>
+          <div class="arb-day dday">H5<br/><small>HATI-HATI</small></div>
+        </div>
+        <div class="abox buy"><span>🟢 AKSI: BELI DI HARGA ARB.</span> Sinyal absolut Paus menadah cut loss massal ritel.</div>
+      </div>
+      <div class="sigstat" id="ss2"><span class="dot idle"></span><span>Pilih tab ARA atau ARB, centang checklist</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL: TIER 2 ===== -->
+<div class="panel" id="panel-t2">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🚀 TIER 2 — BULANAN</div>
+    <h2 class="sec-title">Event-Driven & IPO Arbitrage</h2>
+    <p class="sec-sub">Profit asimetris berbasis aksi korporasi · Hanya gunakan Idle Cash</p>
+  </div>
+
+  <!-- S03: E-IPO -->
+  <div class="card" id="s3">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·03</span><span class="card-tag">E-IPO SQUEEZE</span><span class="card-cycle">Per IPO Event</span></div>
+      <h3>Arbitrase Pasar Perdana</h3>
+      <p class="card-desc">Hukum 90/10: 90% sentimen & supply squeeze, 10% fundamental. Filter prospektus ketat — satu FAIL = SKIP total.</p>
+      <div class="chk-group">
+        <div class="chk-group-title">📋 Filter Prospektus (BINER — Satu FAIL = SKIP)</div>
+        <div class="chk-item"><input type="checkbox" id="s3a" class="chk"/><label for="s3a">✅ Penggunaan dana: &gt;80% untuk CAPEX (Ekspansi Riil)</label></div>
+        <div class="chk-item"><input type="checkbox" id="s3b" class="chk"/><label for="s3b">✅ Struktur emisi: 100% Saham Murni — TIDAK ADA WARAN</label></div>
+        <div class="chk-item"><input type="checkbox" id="s3c" class="chk"/><label for="s3c">✅ Lock-Up Period ketat ≥8 bulan untuk Founder</label></div>
+        <div class="chk-item"><input type="checkbox" id="s3d" class="chk"/><label for="s3d">✅ Solo Lead Underwriter Tier-1 dengan track record 100% Winning</label></div>
+      </div>
+      <div class="warnbox" id="waran-warn" style="display:none">⛔ WARAN = RED FLAG MUTLAK. Waran 1:1 = sinyal dumping saham induk. SKIP IPO ini sekarang.</div>
+      <div class="calc-block">
+        <div class="calc-title">🔢 Kalkulator Penjatahan H-2</div>
+        <div class="cgrid">
+          <div><label class="clabel">Lot Didaftarkan</label><input class="cinput" type="number" id="ipolot" placeholder="1000"/></div>
+          <div><label class="clabel">Lot Diterima</label><input class="cinput" type="number" id="ipoalc" placeholder="20"/></div>
+        </div>
+        <div class="rrow"><span>Persentase Alokasi</span><span class="rval" id="ipopct">—</span></div>
+        <div class="verdict" id="ipov"></div>
+      </div>
+      <div class="chk-group" style="margin-top:14px">
+        <div class="chk-group-title">📋 Sybil Execution</div>
+        <div class="chk-item"><input type="checkbox" id="s3e" class="chk"/><label for="s3e">Modal dipecah ke banyak akun/SID berbeda</label></div>
+        <div class="chk-item"><input type="checkbox" id="s3f" class="chk"/><label for="s3f">Maksimal Rp 99 Juta per akun (tier bawah = alokasi lebih besar)</label></div>
+        <div class="chk-item"><input type="checkbox" id="s3g" class="chk"/><label for="s3g">Hanya Idle Cash — bukan modal trading aktif</label></div>
+        <div class="chk-item"><input type="checkbox" id="s3h" class="chk"/><label for="s3h">Target exit: jual bertahap, maksimal tahan hingga Hari ke-7</label></div>
+      </div>
+      <div class="sigstat" id="ss3"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+
+  <!-- S04: Dividend Trap -->
+  <div class="card" id="s4">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·04</span><span class="card-tag">DIVIDEND TRAP</span><span class="card-cycle">2–3 Bulan Pre-RUPS</span></div>
+      <h3>Front-Running The Yield</h3>
+      <p class="card-desc">Jadikan ritel pemburu dividen sebagai Exit Liquidity. Capital Gain sebelum Ex-Date selalu lebih aman daripada menunggu dividen.</p>
+      <div class="chk-group">
+        <div class="chk-group-title">📋 Checklist Entry</div>
+        <div class="chk-item"><input type="checkbox" id="s4a" class="chk"/><label for="s4a">Emiten adalah proksi dividen besar (Batu Bara / Big Banks)</label></div>
+        <div class="chk-item"><input type="checkbox" id="s4b" class="chk"/><label for="s4b">Masih 2–3 bulan sebelum RUPS pembagian dividen</label></div>
+        <div class="chk-item"><input type="checkbox" id="s4c" class="chk"/><label for="s4c">Expected yield ≥15% agar ritel FOMO cukup kuat</label></div>
+      </div>
+      <div class="calc-block">
+        <div class="calc-title">🔢 Kalkulator Dividend Trap</div>
+        <div class="cgrid">
+          <div><label class="clabel">Harga Beli (Rp)</label><input class="cinput" type="number" id="dvbuy" placeholder="3000"/></div>
+          <div><label class="clabel">Target Jual Cum-Date (Rp)</label><input class="cinput" type="number" id="dvsell" placeholder="3800"/></div>
+          <div><label class="clabel">Dividen/Saham (Rp)</label><input class="cinput" type="number" id="dvamt" placeholder="500"/></div>
+        </div>
+        <div class="rrow"><span>Capital Gain (jual sebelum Ex-Date)</span><span class="rval" id="dvgain">—</span></div>
+        <div class="rrow"><span>Yield Dividen Bruto</span><span class="rval" id="dvyield">—</span></div>
+        <div class="rrow"><span>Dividen Net (pajak 10%)</span><span class="rval" id="dvnet">—</span></div>
+        <div class="verdict" id="dvv"></div>
+      </div>
+      <div class="exitbox"><span class="exitlbl">🚨 EXIT SIGNAL</span><p>Saat Cum-Date tiba dan ritel FOMO ngejar yield → JUAL 100%. Hindari pajak dividen & jebakan ARB di Ex-Date.</p></div>
+      <div class="sigstat" id="ss4"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL: TIER 3 ===== -->
+<div class="panel" id="panel-t3">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🐋 TIER 3 — KUARTALAN</div>
+    <h2 class="sec-title">The Whales Game</h2>
+    <p class="sec-sub">Alokasi modal berat 70–80% · Zero-churn · Bermain di struktur makro & monopoli kepemilikan konglomerasi</p>
+  </div>
+
+  <!-- S05: Rights Issue -->
+  <div class="card" id="s5">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·05</span><span class="card-tag">JUMBO RIGHTS ISSUE</span><span class="card-cycle">Kuartalan</span></div>
+      <h3>Control Premium Squeeze</h3>
+      <p class="card-desc">RI Jumbo 1:3 bukan tentang harga — tapi tentang perebutan Voting Power. Konglo lebih takut dilusi kepemilikan daripada harga turun.</p>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'rit')">🔴 Skenario A: THREAT</button>
+        <button class="tab" onclick="switchTab(this,'rio')">🟢 Skenario B: OPPORTUNITY</button>
+      </div>
+      <div class="tabcont active" id="tab-rit">
+        <div class="abox danger"><span>🔴 KONDISI:</span> Sudah PEGANG saham di harga ATAS sebelum RI diskon diumumkan.</div>
+        <div class="chk-group">
+          <div class="chk-group-title">📋 Konfirmasi Ancaman</div>
+          <div class="chk-item"><input type="checkbox" id="s5t1" class="chk"/><label for="s5t1">RI diumumkan dengan diskon ekstrem (&gt;30% dari harga pasar)</label></div>
+          <div class="chk-item"><input type="checkbox" id="s5t2" class="chk"/><label for="s5t2">Harga beli saya sudah di atas harga tebus RI</label></div>
+        </div>
+        <div class="abox danger"><span>🔴 AKSI WAJIB: LIQUIDATE & ABORT.</span> Cut loss seketika. Jangan adu modal tunai dengan Konglomerat untuk average down.</div>
+      </div>
+      <div class="tabcont" id="tab-rio">
+        <div class="abox buy"><span>🟢 KONDISI:</span> 100% Cash di luar & Konglo bertindak sebagai PEMBELI SIAGA (Standby Buyer).</div>
+        <div class="chk-group">
+          <div class="chk-group-title">📋 Konfirmasi Peluang Emas</div>
+          <div class="chk-item"><input type="checkbox" id="s5o1" class="chk"/><label for="s5o1">Prospektus menyatakan Konglo sebagai STANDBY BUYER resmi</label></div>
+          <div class="chk-item"><input type="checkbox" id="s5o2" class="chk"/><label for="s5o2">Saya 100% Cash — tidak memegang saham ini sebelumnya</label></div>
+          <div class="chk-item"><input type="checkbox" id="s5o3" class="chk"/><label for="s5o3">Harga sudah bottoming mendekati harga tebus Konglo</label></div>
+          <div class="chk-item"><input type="checkbox" id="s5o4" class="chk"/><label for="s5o4">Ritel sudah panik terdilusi — sinyal kapitulasi terlihat</label></div>
+        </div>
+        <div class="calc-block">
+          <div class="calc-title">🔢 Kalkulator Dilusi Rights Issue</div>
+          <div class="cgrid">
+            <div><label class="clabel">Saham Lama (juta)</label><input class="cinput" type="number" id="riold" placeholder="1000"/></div>
+            <div><label class="clabel">Saham Baru — Rasio RI</label><input class="cinput" type="number" id="rinew" placeholder="3000"/></div>
+          </div>
+          <div class="rrow"><span>Kepemilikan Publik Setelah RI</span><span class="rval" id="riown">—</span></div>
+          <div class="rrow"><span>Dilusi Kepemilikan</span><span class="rval" id="ridil">—</span></div>
+          <div class="rrow"><span>Rasio RI</span><span class="rval" id="riratio">—</span></div>
+          <div class="verdict" id="riv"></div>
+        </div>
+        <div class="abox buy"><span>🟢 AKSI: WAIT & STRIKE.</span> Masuk size besar setelah bottoming. Kamu menunggangi kapal bersama Konglo yang baru memperkuat kendali.</div>
+      </div>
+      <div class="sigstat" id="ss5"><span class="dot idle"></span><span>Pilih skenario dan lengkapi checklist</span></div>
+    </div>
+  </div>
+
+  <!-- S06: FCA -->
+  <div class="card" id="s6">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·06</span><span class="card-tag">FCA SLEEPING DRAGON</span><span class="card-cycle">Situasional</span></div>
+      <h3>Arbitrase Papan Rp 50</h3>
+      <p class="card-desc">Downside ~0% (sudah di lantai regulasi), upside asimetris ratusan persen. Cari saham ekosistem Konglo yang ditidurkan di FCA.</p>
+      <div class="chk-group">
+        <div class="chk-group-title">📋 Checklist Filter</div>
+        <div class="chk-item"><input type="checkbox" id="s6a" class="chk"/><label for="s6a">Saham di Papan Pemantauan Khusus (FCA) / harga Rp 50</label></div>
+        <div class="chk-item"><input type="checkbox" id="s6b" class="chk"/><label for="s6b">Bagian ekosistem Konglomerat besar / fundamental underlying bagus</label></div>
+        <div class="chk-item"><input type="checkbox" id="s6c" class="chk"/><label for="s6c">TRIGGER: Volume triliunan muncul tiba-tiba di Pasar Negosiasi</label></div>
+        <div class="chk-item"><input type="checkbox" id="s6d" class="chk"/><label for="s6d">Ada katalis potensial (restrukturisasi / RI / perubahan pengendali)</label></div>
+      </div>
+      <div class="calc-block">
+        <div class="calc-title">🔢 Kalkulator Asimetri Risk/Reward</div>
+        <div class="cgrid">
+          <div><label class="clabel">Harga Beli (Rp, ~50–51)</label><input class="cinput" type="number" id="fcabuy" placeholder="50"/></div>
+          <div><label class="clabel">Target Pasca FCA Dicabut (Rp)</label><input class="cinput" type="number" id="fcatgt" placeholder="300"/></div>
+        </div>
+        <div class="rrow"><span>Potensi Upside</span><span class="rval" id="fcaup">—</span></div>
+        <div class="rrow"><span>Risiko Downside</span><span class="rval tg">~0% (sudah di lantai)</span></div>
+        <div class="rrow"><span>Risk/Reward Ratio</span><span class="rval" id="fcarr">—</span></div>
+        <div class="verdict" id="fcav"></div>
+      </div>
+      <div class="abox buy"><span>🟢 AKSI: CICIL BELI</span> di pasar reguler Rp 50–51. Tahan sampai status FCA dicabut regulator.</div>
+      <div class="sigstat" id="ss6"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL: TIER 4 ===== -->
+<div class="panel" id="panel-t4">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🕶️ TIER 4 — INVISIBLE ARBITRAGE</div>
+    <h2 class="sec-title">Celah Regulasi & Dark Pool</h2>
+    <p class="sec-sub">Win rate ~100% jika dieksekusi tepat · Tidak peduli IHSG hijau atau crash · Frekuensi rendah</p>
+  </div>
+
+  <!-- S07: MTO -->
+  <div class="card" id="s7">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·07</span><span class="card-tag">MANDATORY TENDER OFFER</span><span class="card-cycle">30–45 Hari</span></div>
+      <h3>MTO Spread Arbitrage</h3>
+      <p class="card-desc">Fixed Income berdurasi 30-45 hari. OJK wajibkan pengendali baru beli sisa saham publik di harga tetap. Margin terkunci oleh regulasi.</p>
+      <div class="chk-group">
+        <div class="chk-group-title">📋 Checklist Konfirmasi MTO</div>
+        <div class="chk-item"><input type="checkbox" id="s7a" class="chk"/><label for="s7a">Pengendali baru sudah akuisisi &gt;50% saham (trigger OJK wajib)</label></div>
+        <div class="chk-item"><input type="checkbox" id="s7b" class="chk"/><label for="s7b">OJK sudah mewajibkan Mandatory Tender Offer (MTO) secara resmi</label></div>
+        <div class="chk-item"><input type="checkbox" id="s7c" class="chk"/><label for="s7c">Harga saham reguler MASIH di bawah harga tender offer</label></div>
+        <div class="chk-item"><input type="checkbox" id="s7d" class="chk"/><label for="s7d">Sudah konfirmasi tanggal deadline penyerahan ke BAE</label></div>
+      </div>
+      <div class="calc-block">
+        <div class="calc-title">🔢 Kalkulator MTO Spread</div>
+        <div class="cgrid">
+          <div><label class="clabel">Harga Beli Reguler (Rp)</label><input class="cinput" type="number" id="mtobuy" placeholder="2400"/></div>
+          <div><label class="clabel">Harga Tender Offer (Rp)</label><input class="cinput" type="number" id="mtooffer" placeholder="2500"/></div>
+          <div><label class="clabel">Durasi Tunggu (hari)</label><input class="cinput" type="number" id="mtodays" placeholder="30"/></div>
+        </div>
+        <div class="rrow"><span>Gross Spread</span><span class="rval" id="mtospread">—</span></div>
+        <div class="rrow"><span>Net Yield (setelah fee 0.40%)</span><span class="rval" id="mtonet">—</span></div>
+        <div class="rrow"><span>Annualized Return</span><span class="rval" id="mtoann">—</span></div>
+        <div class="verdict" id="mtov"></div>
+      </div>
+      <div class="abox buy"><span>🟢 AKSI:</span> Beli reguler → Tahan → Serahkan ke BAE di harga Tender. Margin dikunci OJK.</div>
+      <div class="sigstat" id="ss7"><span class="dot idle"></span><span>Checklist belum lengkap</span></div>
+    </div>
+  </div>
+
+  <!-- S08: Dark Pool -->
+  <div class="card" id="s8">
+    <div class="card-sigbar"></div>
+    <div class="card-body">
+      <div class="card-meta"><span class="card-num mono">S·08</span><span class="card-tag">DARK POOL FORENSICS</span><span class="card-cycle">Real-time</span></div>
+      <h3>Sinyal Pasar Negosiasi</h3>
+      <p class="card-desc">Baca intensi Smart Money dari Block Trade di balik layar sebelum berita rilis ke publik. Premium = M&A, Diskon = Bailout/Gagal Bayar.</p>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'dpp')">🟢 Premium Cross (M&A)</button>
+        <button class="tab" onclick="switchTab(this,'dpd')">🔴 Discount Cross (Bailout)</button>
+      </div>
+      <div class="tabcont active" id="tab-dpp">
+        <div class="chk-group">
+          <div class="chk-group-title">📋 Konfirmasi Premium Cross</div>
+          <div class="chk-item"><input type="checkbox" id="s8p1" class="chk"/><label for="s8p1">Terjadi crossing triliunan di Pasar Negosiasi</label></div>
+          <div class="chk-item"><input type="checkbox" id="s8p2" class="chk"/><label for="s8p2">Harga crossing LEBIH TINGGI dari harga reguler (&gt;20% Premium)</label></div>
+          <div class="chk-item"><input type="checkbox" id="s8p3" class="chk"/><label for="s8p3">Belum ada berita M&A / akuisisi yang rilis ke publik</label></div>
+        </div>
+        <div class="calc-block">
+          <div class="calc-title">🔢 Kalkulator Premium/Diskon Crossing</div>
+          <div class="cgrid">
+            <div><label class="clabel">Harga Reguler (Rp)</label><input class="cinput" type="number" id="dpreg" placeholder="1000"/></div>
+            <div><label class="clabel">Harga Crossing Nego (Rp)</label><input class="cinput" type="number" id="dpcross" placeholder="1500"/></div>
+          </div>
+          <div class="rrow"><span>Premium / Diskon Crossing</span><span class="rval" id="dppct">—</span></div>
+          <div class="verdict" id="dpv"></div>
+        </div>
+        <div class="abox buy"><span>🟢 STRONG BUY di pasar reguler.</span> Harga akan dikerek menyesuaikan valuasi akuisisi.</div>
+      </div>
+      <div class="tabcont" id="tab-dpd">
+        <div class="chk-group">
+          <div class="chk-group-title">📋 Konfirmasi Discount Cross</div>
+          <div class="chk-item"><input type="checkbox" id="s8d1" class="chk"/><label for="s8d1">Terjadi crossing jumbo di Pasar Negosiasi</label></div>
+          <div class="chk-item"><input type="checkbox" id="s8d2" class="chk"/><label for="s8d2">Harga crossing LEBIH RENDAH dari harga reguler (&gt;20% Diskon)</label></div>
+          <div class="chk-item"><input type="checkbox" id="s8d3" class="chk"/><label for="s8d3">Harga reguler terlihat stabil (ilusi menahan margin call)</label></div>
+        </div>
+        <div class="abox danger"><span>🔴 AVOID / SHORT.</span> Harga reguler adalah ilusi. Menahan margin call kreditur. Akan segera runtuh.</div>
+      </div>
+      <div class="sigstat" id="ss8"><span class="dot idle"></span><span>Pilih scenario dan centang checklist</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL: IPO MATRIX ===== -->
+<div class="panel" id="panel-ipo">
+  <div class="sec-header">
+    <div class="sec-eyebrow">📋 INTELLIGENCE</div>
+    <h2 class="sec-title">IPO Prospectus Filter Matrix</h2>
+    <p class="sec-sub">Bedah prospektus secara biner. Satu FAIL pada kolom SKIP = abaikan IPO tersebut sepenuhnya.</p>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="ipo-matrix">
+      <thead><tr><th>Metrik Prospektus</th><th>Keputusan</th><th>Logika Kuantitatif</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Penggunaan Dana &gt;50% Bayar Utang</strong><br/><span style="color:var(--muted2);font-size:11px">Refinancing / Working Capital tanpa aset baru</span></td><td><span class="badge-skip">⛔ SKIP</span></td><td>Uang publik untuk bailout. Tidak ada value creation. Harga naik sesaat lalu mati.</td></tr>
+        <tr><td><strong>Penggunaan Dana &gt;80% Capex Murni</strong><br/><span style="color:var(--muted2);font-size:11px">Akuisisi aset / bangun pabrik / infrastruktur</span></td><td><span class="badge-buy">✅ BUY</span></td><td>Injeksi modal riil. Valuasi naik karena aset bertambah. Narasi kuat untuk markup.</td></tr>
+        <tr><td><strong>Ada Waran Gratis Rasio Besar (1:1 atau 2:1)</strong><br/><span style="color:var(--muted2);font-size:11px">Instrument derivatif sebagai pemanis</span></td><td><span class="badge-skip">⛔ SKIP</span></td><td>Institusi jual waran di pucuk hari-1 → cost basis kembali → buang saham induk tanpa henti. Mother share = ARB berjilid.</td></tr>
+        <tr><td><strong>Emisi Murni Saham, Nol Waran</strong></td><td><span class="badge-buy">✅ BUY</span></td><td>Pure price action. Market Maker harus naikan saham induk untuk dapat return. Tidak ada exit lewat instrumen lain.</td></tr>
+        <tr><td><strong>Tidak Ada Lock-Up Period</strong><br/><span style="color:var(--muted2);font-size:11px">Pre-IPO investor bebas jual dari hari-1</span></td><td><span class="badge-skip">⛔ SKIP</span></td><td>Suplai bocor. Pendiri/VC langsung buang barang di hari pertama. Order Book jebol instan.</td></tr>
+        <tr><td><strong>Lock-Up Ketat ≥8 Bulan untuk Founder</strong></td><td><span class="badge-buy">✅ BUY</span></td><td>Suplai publik (Free Float) sangat kecil. Market Maker bisa kunci ARA dengan modal minimal.</td></tr>
+        <tr><td><strong>Size Emisi Jumbo &gt;Rp 2 Triliun</strong></td><td><span class="badge-watch">⚠️ WATCH</span></td><td>Susah ARA berjilid. Butuh likuiditas raksasa. Cocok untuk MSCI/indeks play bukan Hit-and-Run.</td></tr>
+        <tr><td><strong>Size Emisi Kecil-Menengah Rp 100–500 Miliar</strong></td><td><span class="badge-buy">✅ BUY</span></td><td>Sweet spot. Underwriter Tier-1 bisa kontrol Order Book dengan efisien. ARA berjilid sangat mungkin.</td></tr>
+        <tr><td><strong>Penjatahan Ritel &gt;30%</strong><br/><span style="color:var(--muted2);font-size:11px">Hasil hari penjatahan</span></td><td><span class="badge-skip">⛔ SKIP</span></td><td>Undersubscribed. Smart Money tidak tertarik. Ritel pegang banyak barang, order book jebol di hari pertama.</td></tr>
+        <tr><td><strong>Penjatahan Ritel &lt;2% (Squeeze)</strong><br/><span style="color:var(--muted2);font-size:11px">Hasil hari penjatahan</span></td><td><span class="badge-buy">✅ BUY</span></td><td>Oversubscribed ekstrem. Suplai dikunci institusi. Harga dipastikan markup parabolik. Sybil structure efektif.</td></tr>
+        <tr><td><strong>PE Ratio Premium (30–40x), Laba Turun</strong></td><td><span class="badge-skip">⛔ SKIP</span></td><td>Overpriced tanpa justifikasi growth. Founder cash-out. Akan terkoreksi drastis setelah hype mati.</td></tr>
+        <tr><td><strong>PE Premium (30–40x), Laba Tumbuh &gt;30% YoY</strong></td><td><span class="badge-buy">✅ BUY</span></td><td>Growth premium valid. PEG Ratio &lt;1. Fund institusi besar rela bayar mahal untuk lintasan pertumbuhan ini.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:20px;padding:16px;background:var(--surf);border:1px solid var(--gold);border-radius:9px">
+    <div style="color:var(--gold);font-weight:700;margin-bottom:8px">🕐 IPO TIMELINE EKSEKUSI</div>
+    <div class="grid3">
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Day 1</strong><p style="font-size:12px;color:var(--muted2);margin-top:4px">Monitor ketebalan Bid di ARA. Jika antrean dicabut instan atau ada block dump → SELL MARKET seketika.</p></div>
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border-left:3px solid var(--blue)"><strong style="color:var(--blue)">Day 7</strong><p style="font-size:12px;color:var(--muted2);margin-top:4px">Batas maksimal hold. Jika Harga Naik + Volume Turun (exhaustion) → Likuidasi 100%. Ambil profit, kembalikan jadi Idle Cash.</p></div>
+      <div style="padding:12px;background:var(--surf2);border-radius:7px;border-left:3px solid var(--purple)"><strong style="color:var(--purple)">Month 7</strong><p style="font-size:12px;color:var(--muted2);margin-top:4px">Lock-Up expiry horizon. Pantau transfer saham di Pasar Negosiasi. Jika founder mulai cash-out → AVOID sepenuhnya.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL: ANTI-TRAP ===== -->
+<div class="panel" id="panel-antitrap">
+  <div class="sec-header">
+    <div class="sec-eyebrow">⚠️ ANTI-MANIPULATION</div>
+    <h2 class="sec-title">Anti-Trap Protocols</h2>
+    <p class="sec-sub">Market Maker selalu mencari Exit Liquidity. Kenali jebakan mereka sebelum jadi korban.</p>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="trap-table">
+      <thead><tr><th>Jebakan</th><th>Modus Operandi</th><th>Counter-Tactic</th></tr></thead>
+      <tbody>
+        <tr><td><div class="trap-name">Order Book Spoofing</div><div style="font-size:11px;color:var(--muted2)">Dinding ilusi di Bid</div></td><td>Pasang ratusan ribu lot palsu di Bid untuk pancing ritel HAKA. Detik ritel masuk, antrean dicabut, saham dibuang.</td><td><div class="trap-counter">→ Tape Reading</div>Fokus pada Running Trade (Match). Jika antrean raksasa hilang tanpa ada volume eksekusi → Spoofing. Jangan entry.</td></tr>
+        <tr><td><div class="trap-name">Nominee Illusion</div><div style="font-size:11px;color:var(--muted2)">Paus berbaju ritel</div></td><td>Institusi memecah akumulasi ke puluhan akun broker ritel kelas bawah. Screener standar anggap sebagai noise ritel.</td><td><div class="trap-counter">→ ATV Analysis</div>Hitung Average Transaction Value = Total Value ÷ Frekuensi. Nilai besar + frekuensi rendah = HNWI menyamar.</td></tr>
+        <tr><td><div class="trap-name">Fake Breakout (Bull Trap)</div><div style="font-size:11px;color:var(--muted2)">Chart breakout palsu</div></td><td>Harga ditarik lewat resisten teknikal. Semua indikator ritel hijau. Ritel HAKA. Bandar distribusi di puncak.</td><td><div class="trap-counter">→ VPA Exhaustion</div>Jika Harga NAIK + Volume TURUN = anomali fatal. Market Maker menarik gas. Take Profit atau jangan entry.</td></tr>
+        <tr><td><div class="trap-name">Shakeout Markdown</div><div style="font-size:11px;color:var(--muted2)">Penurunan fiktif</div></td><td>Harga dibanting merah berturut-turut untuk paksa weak hands cut loss massal. Ritel panik.</td><td><div class="trap-counter">→ VPA Absorption</div>Jika Harga TURUN + Volume KERING/MENYUSUT = Healthy Retracement. Institusi menadah, bukan buang. HOLD.</td></tr>
+        <tr><td><div class="trap-name">Dark Pool Discount Illusion</div><div style="font-size:11px;color:var(--muted2)">Pasar Negosiasi</div></td><td>Crossing raksasa di Pasar Nego dengan harga diskon besar. Ritel salah artikan sebagai akumulasi murah.</td><td><div class="trap-counter">→ Price Delta Check</div>Diskon crossing = bailout/repo/tukar guling afiliasi. HANYA valid jika Premium (di atas harga reguler) = sinyal M&A.</td></tr>
+        <tr><td><div class="trap-name">Sell-on-News Slaughter</div><div style="font-size:11px;color:var(--muted2)">Berita bagus = exit bandar</div></td><td>Corporate action resmi rilis. Media heboh. Ritel FOMO borong di pucuk. Bandar buang ke ritel.</td><td><div class="trap-counter">→ Sentiment vs Flow</div>Jika hype sosial memuncak TAPI institusi Net Sell di Broker Summary → berita itu alat exit liquidity. Tinggalkan.</td></tr>
+        <tr><td><div class="trap-name">Painting the Tape</div><div style="font-size:11px;color:var(--muted2)">Volume palsu / Wash Trading</div></td><td>Transaksi jual-beli ke diri sendiri untuk ciptakan volume palsu. Masuk Top Active screener ritel.</td><td><div class="trap-counter">→ Gross vs Net</div>Gross Value besar tapi Net Value (Beli-Jual) mendekati nol = Wash Trading. Flag sebagai Toxic Liquidity, abaikan.</td></tr>
+        <tr><td><div class="trap-name">Index Rebalancing Front-Run</div><div style="font-size:11px;color:var(--muted2)">Pembantaian hari MSCI</div></td><td>Saham masuk MSCI/FTSE. Ritel tahan barang menunggu asing beli di Hari-H. Smart Money sudah akumulasi jauh sebelumnya dan jual ke asing itu.</td><td><div class="trap-counter">→ Event Timeline Arbitrage</div>Buy the Rumor (akumulasi saat sepi), Sell BEFORE the Fact. Likuidasi sehari sebelum atau tepat di Hari-H rebalancing.</td></tr>
+        <tr><td><div class="trap-name">Warrant Sweetener Trap</div><div style="font-size:11px;color:var(--muted2)">IPO / RI dengan waran pemanis</div></td><td>Waran gratis 1:1. Institusi jual waran di pucuk hari-1 → modal balik → buang saham induk habis-habisan. Ritel yang hold induk kena ARB.</td><td><div class="trap-counter">→ Mother Share Liquidation</div>Jangan hold saham induk IPO/RI berstruktur waran besar. Jual saham induk di hari-1 bersamaan dengan listing waran.</td></tr>
+        <tr><td><div class="trap-name">Dilution Scheme (RI Jumbo)</div><div style="font-size:11px;color:var(--muted2)">Rights Issue gali-tutup lubang</div></td><td>RI jumbo berdalih ekspansi, nyatanya bayar utang afiliasi. Ritel yang tidak tebus terdilusi. Yang tebus terus suntik modal.</td><td><div class="trap-counter">→ Standby Buyer Validation</div>HANYA valid jika Konglo berstatus Standby Buyer di harga Premium. Tanpa itu = Toxic RI, skip.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="footer-grid">
+  <div class="footer-col">
+    <h4>Portfolio Readiness</h4>
+    <div class="rb-item"><span>Defense</span><div class="rbar"><div class="rfill" id="rf-def"></div></div><span id="rt-def">0/3</span></div>
+    <div class="rb-item"><span>Tier 1</span><div class="rbar"><div class="rfill" id="rf-t1"></div></div><span id="rt-t1">0/7</span></div>
+    <div class="rb-item"><span>Tier 2</span><div class="rbar"><div class="rfill" id="rf-t2"></div></div><span id="rt-t2">0/11</span></div>
+    <div class="rb-item"><span>Tier 3 & 4</span><div class="rbar"><div class="rfill" id="rf-t34"></div></div><span id="rt-t34">0/15</span></div>
+  </div>
+  <div class="footer-col">
+    <h4>Quick Reference</h4>
+    <div class="qr-row"><span>Fee Beli</span><span class="qr-val">0.15%</span></div>
+    <div class="qr-row"><span>Fee Jual</span><span class="qr-val">0.25%</span></div>
+    <div class="qr-row"><span>Round-Trip</span><span class="qr-val tr">0.40%</span></div>
+    <div class="qr-row"><span>Max Slippage</span><span class="qr-val tr">~1.5%</span></div>
+    <div class="qr-row"><span>Min Net Yield</span><span class="qr-val tg">&gt;3%</span></div>
+    <div class="qr-row"><span>Hurdle Rate</span><span class="qr-val ty">&gt;5%</span></div>
+    <div class="qr-row"><span>Max ADTV/Posisi</span><span class="qr-val">5–10%</span></div>
+  </div>
+  <div class="footer-col">
+    <h4>Rule Reminders</h4>
+    <div class="rem-item">📐 Max 5–10% ADTV per emiten</div>
+    <div class="rem-item">📏 Resistance gap &gt;5% sebelum entry</div>
+    <div class="rem-item">🎯 Tier 3 & 4: hold 3–9 bulan</div>
+    <div class="rem-item">💀 Waran 1:1 = skip IPO</div>
+    <div class="rem-item">🐋 Discount crossing = AVOID/SHORT</div>
+    <div class="rem-item">🔒 MTO Spread = risk-free arbitrase</div>
+    <div class="rem-item">⚡ ARB H3-H4 + volume spike = BUY</div>
+  </div>
+</div>
+<div class="footer-bottom">BEAT IT · IHSG Proprietary Playbook · Bukan rekomendasi investasi · Gunakan judgment sendiri</div>
+</footer>
+
+<script>
+// ── Panel navigation ──
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('panel-'+id);
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.sb-btn').forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active');
+  });
+}
+
+// ── Tab switching ──
+function switchTab(btn,sub){
+  const body=btn.closest('.card-body')||btn.closest('.panel');
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  body.querySelectorAll('.tabcont').forEach(c=>c.classList.remove('active'));
+  const el=document.getElementById('tab-'+sub);
+  if(el)el.classList.add('active');
+}
+
+// ── Hold advisor ──
+const HA={
+  '1':{i:'⚡',t:'Hold harian–mingguan. Monitor agresif, exit saat sinyal exhaustion muncul.'},
+  '2':{i:'📅',t:'Hold per event (IPO max H-7, Dividen sampai Cum-Date). Jangan nikahi aset.'},
+  '3':{i:'🎯',t:'Hold 3–9 bulan. Matikan layar setelah akumulasi. Zero-churn adalah hukum.'},
+  '4':{i:'🔒',t:'Hold 30–45 hari (MTO) atau sampai berita M&A rilis publik. Win rate ~100%.'}
+};
+function setHold(btn){
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const h=HA[btn.dataset.tier];
+  document.getElementById('hold-icon').textContent=h.i;
+  document.getElementById('hold-text').textContent=h.t;
+}
+
+// ── Formatters ──
+const pct=v=>v.toFixed(2)+'%';
+const rpM=v=>'Rp '+(v>=1000?(v/1000).toFixed(1)+'T':(v>=1?(v).toFixed(1)+'M':(v*1000).toFixed(0)+'jt'));
+function sv(id,type,msg){const el=document.getElementById(id);if(!el)return;el.className='verdict '+type;el.textContent=msg;}
+function setRval(id,text,cls=''){const el=document.getElementById(id);if(!el)return;el.textContent=text;el.className='rval '+(cls||'');}
+
+// ── Defense calcs ──
+document.getElementById('adtv').addEventListener('input',function(){
+  const v=parseFloat(this.value);
+  if(!v||v<=0){setRval('cap-lo','—');setRval('cap-hi','—');return;}
+  setRval('cap-lo','Rp '+(v*.05).toFixed(1)+' M','tg');
+  setRval('cap-hi','Rp '+(v*.10).toFixed(1)+' M','ty');
+  checkDefCard('dc1',['d1']);
+});
+
+function calcHrd(){
+  const e=parseFloat(document.getElementById('ep').value);
+  const r=parseFloat(document.getElementById('rp').value);
+  if(!e||!r||e<=0||r<=e){['hrd-gap','hrd-fee','hrd-slip'].forEach(id=>setRval(id,'—'));return;}
+  const gap=((r-e)/e)*100,fee=gap-.4,slip=fee-1.5;
+  setRval('hrd-gap',pct(gap),gap>=5?'tg':'tr');
+  setRval('hrd-fee',pct(fee),fee>=4?'tg':'tr');
+  setRval('hrd-slip',pct(slip),slip>=3?'tg':'tr');
+  if(slip>=3&&gap>=5)sv('hrd-v','go','✅ LAYAK ENTRY — Net yield memenuhi minimum >3%');
+  else if(slip>=0)sv('hrd-v','warn','⚠️ MARGIN TIPIS — Net yield <3%. Pertimbangkan ulang.');
+  else sv('hrd-v','nogo','🚫 NO ENTRY — Setelah fee + slippage posisi RUGI. Skip!');
+}
+document.getElementById('ep').addEventListener('input',calcHrd);
+document.getElementById('rp').addEventListener('input',calcHrd);
+
+// ── S1: Volume ──
+function calcS1(){
+  const ma=parseFloat(document.getElementById('s1ma').value);
+  const v=parseFloat(document.getElementById('s1vol').value);
+  if(!ma||!v||ma<=0)return;
+  const mul=v/ma;
+  setRval('s1mul',mul.toFixed(1)+'x MA20',mul>=3?'tg':'tr');
+  setRval('s1thr',(ma*3).toLocaleString('id-ID')+' lot (min valid)','ty');
+  if(mul>=3)sv('s1v','go','✅ BREAKOUT VALID — Volume ≥300% MA20. Anomaly institusi terkonfirmasi!');
+  else if(mul>=2)sv('s1v','warn','⚠️ VOLUME LEMAH — '+mul.toFixed(1)+'x MA20. Belum 300% threshold.');
+  else sv('s1v','nogo','🚫 VOLUME RENDAH — '+mul.toFixed(1)+'x MA20. Tidak ada sinyal institusi.');
+}
+document.getElementById('s1ma').addEventListener('input',calcS1);
+document.getElementById('s1vol').addEventListener('input',calcS1);
+
+// ── S3: IPO waran warning ──
+document.getElementById('s3b').addEventListener('change',function(){
+  document.getElementById('waran-warn').style.display=this.checked?'none':'block';
+});
+
+// ── S3: IPO penjatahan ──
+function calcIPO(){
+  const lot=parseFloat(document.getElementById('ipolot').value);
+  const alc=parseFloat(document.getElementById('ipoalc').value);
+  if(!lot||!alc||lot<=0)return;
+  const p=(alc/lot)*100;
+  setRval('ipopct',pct(p),p<2?'tg':p>30?'tr':'ty');
+  if(p<2)sv('ipov','go','🟢 SQUEEZE! Alokasi <2% = OVERSUBSCRIBED EKSTREM. Suplai dikunci. HOLD & tunggu squeeze!');
+  else if(p<=30)sv('ipov','warn','⚠️ NORMAL — Alokasi '+pct(p)+'. Monitor day-1 tape sebelum keputusan.');
+  else sv('ipov','nogo','🔴 TOXIC! Alokasi >30% = Ritel pegang banyak barang. CUT LOSS di hari pertama!');
+}
+document.getElementById('ipolot').addEventListener('input',calcIPO);
+document.getElementById('ipoalc').addEventListener('input',calcIPO);
+
+// ── S4: Dividend ──
+function calcDiv(){
+  const buy=parseFloat(document.getElementById('dvbuy').value);
+  const sell=parseFloat(document.getElementById('dvsell').value);
+  const div=parseFloat(document.getElementById('dvamt').value);
+  if(!buy||buy<=0)return;
+  if(sell&&sell>buy){const g=((sell-buy)/buy)*100;setRval('dvgain','+'+pct(g)+' (Rp '+(sell-buy).toLocaleString('id-ID')+'/saham)','tg');}
+  if(div){
+    const gy=(div/buy)*100,ny=(div*.9/buy)*100;
+    setRval('dvyield',pct(gy),'ty');
+    setRval('dvnet',pct(ny)+' (pajak Rp '+(div*.1).toLocaleString('id-ID')+'/saham)','tm');
+    if(sell&&sell>buy){
+      const g=((sell-buy)/buy)*100;
+      if(g>ny)sv('dvv','go','✅ CAPITAL GAIN ('+pct(g)+') > DIVIDEN NET ('+pct(ny)+'). Exit sebelum Ex-Date lebih optimal!');
+      else sv('dvv','warn','⚠️ Dividen net lebih tinggi dari capital gain. Pertimbangkan risiko ARB di Ex-Date.');
+    }
+  }
+}
+['dvbuy','dvsell','dvamt'].forEach(id=>document.getElementById(id).addEventListener('input',calcDiv));
+
+// ── S5: RI Dilution ──
+function calcRI(){
+  const o=parseFloat(document.getElementById('riold').value);
+  const n=parseFloat(document.getElementById('rinew').value);
+  if(!o||!n||o<=0)return;
+  const own=(o/(o+n))*100,dil=100-own,ratio=n/o;
+  setRval('riown',pct(own)+' dari total saham','tr');
+  setRval('ridil','-'+pct(dil)+' dari posisi awal','tr');
+  setRval('riratio','1 : '+ratio.toFixed(1),'ty');
+  if(ratio>=3)sv('riv','nogo','🔴 DILUSI EKSTREM! Rasio 1:'+ratio.toFixed(0)+'. Kepemilikan publik tersisa hanya '+pct(own)+'. Konglo merebut kendali penuh.');
+  else if(ratio>=1)sv('riv','warn','⚠️ DILUSI SIGNIFIKAN. Rasio 1:'+ratio.toFixed(1)+'. Cek apakah Konglo bertindak sebagai Standby Buyer.');
+  else sv('riv','warn','⚠️ Dilusi ringan. Verifikasi prospektus untuk konfirmasi tujuan RI.');
+}
+document.getElementById('riold').addEventListener('input',calcRI);
+document.getElementById('rinew').addEventListener('input',calcRI);
+
+// ── S6: FCA ──
+function calcFCA(){
+  const b=parseFloat(document.getElementById('fcabuy').value);
+  const t=parseFloat(document.getElementById('fcatgt').value);
+  if(!b||!t||b<=0||t<=b)return;
+  const up=((t-b)/b)*100,rr=up/5;
+  setRval('fcaup','+'+up.toFixed(0)+'%','tg');
+  setRval('fcarr',rr.toFixed(0)+':1','ty');
+  if(up>=200)sv('fcav','go','🟢 ASIMETRI LUAR BIASA! +'+up.toFixed(0)+'% potensi dengan downside ~0%. Setup Sleeping Dragon ideal.');
+  else if(up>=50)sv('fcav','go','✅ Setup asimetris bagus. Upside '+up.toFixed(0)+'% saat FCA dicabut.');
+  else sv('fcav','warn','⚠️ Upside hanya '+up.toFixed(0)+'%. Cek katalis realistis sebelum entry.');
+}
+document.getElementById('fcabuy').addEventListener('input',calcFCA);
+document.getElementById('fcatgt').addEventListener('input',calcFCA);
+
+// ── S7: MTO ──
+function calcMTO(){
+  const b=parseFloat(document.getElementById('mtobuy').value);
+  const o=parseFloat(document.getElementById('mtooffer').value);
+  const d=parseFloat(document.getElementById('mtodays').value);
+  if(!b||!o||b<=0||o<=b)return;
+  const spread=((o-b)/b)*100,net=spread-.4,ann=d>0?(net/d)*365:0;
+  setRval('mtospread','+'+pct(spread)+' (Rp '+(o-b).toLocaleString('id-ID')+'/saham)','tg');
+  setRval('mtonet','+'+pct(net),net>0?'tg':'tr');
+  if(d>0)setRval('mtoann','+'+pct(ann)+'/tahun','ty');
+  if(net>=3)sv('mtov','go','🔒 ARBITRASE TERKUNCI! Net yield '+pct(net)+' dalam '+d+' hari. Risk-free — MTO wajib OJK.');
+  else if(net>0)sv('mtov','warn','⚠️ Yield kecil ('+pct(net)+'). Tetap risk-free tapi opportunity cost tinggi.');
+  else sv('mtov','nogo','🚫 RUGI setelah fee. Spread tidak cukup. Skip!');
+}
+['mtobuy','mtooffer','mtodays'].forEach(id=>document.getElementById(id).addEventListener('input',calcMTO));
+
+// ── S8: Dark Pool ──
+function calcDP(){
+  const r=parseFloat(document.getElementById('dpreg').value);
+  const c=parseFloat(document.getElementById('dpcross').value);
+  if(!r||!c||r<=0)return;
+  const p=((c-r)/r)*100;
+  if(p>0){
+    setRval('dppct','+'+pct(p)+' PREMIUM','tg');
+    if(p>=20)sv('dpv','go','🟢 STRONG BUY! Premium '+pct(p)+' di Negosiasi = sinyal M&A / Strategic Investor masuk!');
+    else sv('dpv','warn','⚠️ Premium kecil ('+pct(p)+'). Bisa noise atau block biasa. Perlu konfirmasi lanjutan.');
+  }else{
+    setRval('dppct',pct(p)+' DISKON','tr');
+    if(p<=-20)sv('dpv','nogo','🔴 DANGER! Diskon '+pct(Math.abs(p))+'% = Bailout/gagal bayar. Harga reguler ILUSI. AVOID!');
+    else sv('dpv','warn','⚠️ Diskon ringan ('+pct(p)+'%). Monitor lebih lanjut, bisa posisi teknikal biasa.');
+  }
+}
+document.getElementById('dpreg').addEventListener('input',calcDP);
+document.getElementById('dpcross').addEventListener('input',calcDP);
+
+// ── Checklist state tracker ──
+const STRATS={
+  s1:['s1a','s1b','s1c','s1d'],
+  s2:['s2a1','s2a2','s2a3'],
+  s3:['s3a','s3b','s3c','s3d','s3e','s3f','s3g','s3h'],
+  s4:['s4a','s4b','s4c'],
+  s5:['s5o1','s5o2','s5o3','s5o4'],
+  s6:['s6a','s6b','s6c','s6d'],
+  s7:['s7a','s7b','s7c','s7d'],
+  s8:['s8p1','s8p2','s8p3']
+};
+
+function updateCard(id){
+  const ids=STRATS[id];if(!ids)return;
+  const tot=ids.length;
+  const chk=ids.filter(x=>document.getElementById(x)?.checked).length;
+  const card=document.getElementById(id);
+  const bar=card?.querySelector('.card-sigbar');
+  const ss=document.getElementById('ss'+id);
+  card?.classList.remove('go','partial','nogo');
+  if(chk===tot){
+    card?.classList.add('go');
+    if(bar){bar.style.background='var(--green)';bar.style.boxShadow='0 0 12px var(--green)';}
+    if(ss){ss.className='sigstat go';ss.innerHTML='<span class="dot go"></span><span>🟢 SEMUA KONDISI TERPENUHI — Siap eksekusi!</span>';}
+  }else if(chk>0){
+    card?.classList.add('partial');
+    if(bar){bar.style.background='var(--gold)';bar.style.boxShadow='0 0 8px var(--gold)';}
+    if(ss){ss.className='sigstat';ss.innerHTML='<span class="dot partial"></span><span>⚠️ '+chk+'/'+tot+' terpenuhi — Lanjutkan verifikasi</span>';}
+  }else{
+    if(bar){bar.style.background='';bar.style.boxShadow='';}
+    if(ss){ss.className='sigstat';ss.innerHTML='<span class="dot idle"></span><span>Checklist belum lengkap</span>';}
+  }
+  updateFooter();
+}
+
+Object.keys(STRATS).forEach(id=>{
+  STRATS[id].forEach(cid=>{
+    document.getElementById(cid)?.addEventListener('change',()=>updateCard(id));
+  });
+});
+
+// ── Defense card tracker ──
+function checkDefCard(cardId,ids){
+  const ok=ids.every(id=>document.getElementById(id)?.checked);
+  const card=document.getElementById(cardId);
+  const bar=card?.querySelector('.card-sigbar');
+  if(ok){
+    card?.classList.add('go');
+    if(bar){bar.style.background='var(--green)';bar.style.boxShadow='0 0 10px var(--green)';}
+  }else{
+    card?.classList.remove('go');
+    if(bar){bar.style.background='';bar.style.boxShadow='';}
+  }
+  updateFooter();
+}
+
+['d1'].forEach(id=>document.getElementById(id)?.addEventListener('change',()=>checkDefCard('dc1',['d1'])));
+['d2'].forEach(id=>document.getElementById(id)?.addEventListener('change',()=>checkDefCard('dc2',['d2'])));
+['d3'].forEach(id=>document.getElementById(id)?.addEventListener('change',()=>checkDefCard('dc3',['d3'])));
+
+// ── Defense progress ring ──
+function updateDefenseRing(){
+  const defIds=['d1','d2','d3'];
+  const chk=defIds.filter(id=>document.getElementById(id)?.checked).length;
+  const pctVal=Math.round((chk/defIds.length)*100);
+  const circ=175.9;
+  const offset=circ-(circ*chk/defIds.length);
+  document.getElementById('defense-ring').style.strokeDashoffset=offset;
+  document.getElementById('defense-pct').textContent=pctVal+'%';
+  const txt=document.getElementById('defense-status-text');
+  if(chk===3)txt.textContent='✅ Semua aturan terpenuhi — Boleh lanjut ke eksekusi strategi';
+  else txt.textContent='Lengkapi '+( defIds.length-chk)+' aturan lagi sebelum eksekusi';
+}
+['d1','d2','d3'].forEach(id=>document.getElementById(id)?.addEventListener('change',updateDefenseRing));
+
+// ── Footer readiness bars ──
+function updateFooter(){
+  const defIds=['d1','d2','d3'];
+  const defChk=defIds.filter(id=>document.getElementById(id)?.checked).length;
+  setBar('def',defChk,defIds.length);
+
+  const t1Ids=[...STRATS.s1,...STRATS.s2];
+  setBar('t1',t1Ids.filter(id=>document.getElementById(id)?.checked).length,t1Ids.length);
+
+  const t2Ids=[...STRATS.s3,...STRATS.s4];
+  setBar('t2',t2Ids.filter(id=>document.getElementById(id)?.checked).length,t2Ids.length);
+
+  const t34Ids=[...STRATS.s5,...STRATS.s6,...STRATS.s7,...STRATS.s8];
+  setBar('t34',t34Ids.filter(id=>document.getElementById(id)?.checked).length,t34Ids.length);
+
+  const all=[...defIds,...Object.values(STRATS).flat()];
+  const allChk=all.filter(id=>document.getElementById(id)?.checked).length;
+  const gs=document.getElementById('gstatus');
+  if(allChk===0){gs.textContent='IDLE';gs.className='sval';}
+  else if(allChk===all.length){gs.textContent='READY ✓';gs.className='sval active';}
+  else{gs.textContent='ACTIVE '+Math.round((allChk/all.length)*100)+'%';gs.className='sval';}
+}
+
+function setBar(key,chk,tot){
+  const fill=document.getElementById('rf-'+key);
+  const txt=document.getElementById('rt-'+key);
+  if(fill)fill.style.width=(tot>0?(chk/tot)*100:0)+'%';
+  if(txt)txt.textContent=chk+'/'+tot;
+}
+
+updateFooter();
+
+// ── Intersection observer for card animations ──
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.style.animationPlayState='running';});
+},{threshold:0.1});
+document.querySelectorAll('.card,.conglo-card').forEach(c=>{c.style.animationPlayState='paused';obs.observe(c);});
+</script>
+</body>
+</html>
